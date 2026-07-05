@@ -294,45 +294,46 @@ function slideToolComparison(p) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
   addHeader(slide, "TOOL LANDSCAPE", "先用任務型態選工具，不要只記工具名稱", 4, C.indigo);
-  addText(slide, "lead", "Claude、Codex、Copilot、Perplexity 類工具功能會重疊；課堂上用它們建立使用場景判斷。", {
+  addText(slide, "lead", "Claude、Gemini、Perplexity 偏研究整理入口；Codex、Copilot、Antigravity 偏開發與 agentic workflow 入口。", {
     left: 96,
     top: 176,
     width: 1040,
     height: 36,
-  }, { fontSize: 22, bold: true, color: C.secondary });
+  }, { fontSize: 21, bold: true, color: C.secondary });
 
   const cards = [
-    ["Claude 類", "長文推理與文件整理", ["讀長篇背景材料", "整理研究筆記", "草擬分析說明"], "仍要回查來源"],
-    ["Codex 類", "repo-grounded 修改與測試", ["讀實際程式碼", "小步修改腳本", "跑測試與看 diff"], "不能跳過 review"],
-    ["Copilot 類", "IDE 內即時開發輔助", ["補完常用程式片段", "重構局部函式", "邊寫邊查 API"], "容易局部正確"],
-    ["Perplexity 類", "web-grounded 搜尋與來源追蹤", ["找文獻線索", "追 citation", "比較資料來源"], "摘要不能當證據"],
+    ["Claude", "長文推理與文件整理", ["讀長篇背景", "整理研究筆記"], "仍要回查來源", C.indigo, C.indigoLight],
+    ["Gemini", "長 context 與 multimodal", ["跨 PDF / 圖表 / 表格", "Google 生態整合"], "抽樣核對脈絡", C.teal, C.tealLight],
+    ["Perplexity", "web-grounded 搜尋追蹤", ["找文獻線索", "追 citation / source"], "摘要不是證據", C.coral, C.coralLight],
+    ["Codex", "repo-grounded 修改測試", ["讀實際程式碼", "跑測試與看 diff"], "不能跳過 review", C.teal, C.white],
+    ["Copilot", "IDE 內即時輔助", ["補完程式片段", "局部重構 / API"], "容易局部正確", C.amber, C.amberLight],
+    ["Antigravity", "agentic IDE 與 artifacts", ["平行 agent 工作", "browser / terminal"], "高權限要設 gate", C.indigo, C.white],
   ];
-  cards.forEach(([name, role, uses, caution], i) => {
-    const x = 84 + i * 292;
-    const color = [C.indigo, C.teal, C.amber, C.coral][i];
-    const fill = [C.indigoLight, C.tealLight, C.amberLight, C.coralLight][i];
-    addSurface(slide, `tool-card-${i}`, x, 258, 250, 280, fill, color);
-    addText(slide, `tool-name-${i}`, name, { left: x + 22, top: 286, width: 206, height: 34 }, {
-      fontSize: 24,
+  cards.forEach(([name, role, uses, caution, color, fill], i) => {
+    const x = 86 + (i % 3) * 380;
+    const y = 244 + Math.floor(i / 3) * 158;
+    addSurface(slide, `tool-card-${i}`, x, y, 328, 126, fill, color);
+    addText(slide, `tool-name-${i}`, name, { left: x + 20, top: y + 18, width: 144, height: 28 }, {
+      fontSize: 21,
       bold: true,
       color,
       typeface: EN_FONT,
     });
-    addText(slide, `tool-role-${i}`, role, { left: x + 22, top: 332, width: 206, height: 46 }, {
-      fontSize: 18,
+    addText(slide, `tool-role-${i}`, role, { left: x + 168, top: y + 19, width: 136, height: 34 }, {
+      fontSize: 16,
       bold: true,
       color: C.ink,
-      lineSpacing: 1.04,
+      lineSpacing: 1.02,
     });
-    addBulletList(slide, `tool-uses-${i}`, uses, { left: x + 28, top: 398, width: 194, height: 82 }, {
+    addBulletList(slide, `tool-uses-${i}`, uses, { left: x + 26, top: y + 62, width: 182, height: 48 }, {
       fontSize: 16,
       color: C.secondary,
       marginLeft: 18,
       indent: -8,
-      spaceAfter: 4,
+      spaceAfter: 2,
       lineSpacing: 1.02,
     });
-    addText(slide, `tool-caution-${i}`, caution, { left: x + 22, top: 498, width: 206, height: 22 }, {
+    addText(slide, `tool-caution-${i}`, caution, { left: x + 212, top: y + 82, width: 94, height: 22 }, {
       fontSize: 15,
       bold: true,
       color,
@@ -345,7 +346,7 @@ function slideToolComparison(p) {
     width: 980,
     height: 34,
   }, { fontSize: 22, bold: true, color: C.ink, alignment: "center" });
-  addSpeakerNotes(slide, "補回課綱原本要談的工具使用場景比較。不要把工具講成排名，而是讓學生能依任務選入口：搜尋、長文整理、repo 修改或 IDE 即時輔助。");
+  addSpeakerNotes(slide, "補回課綱原本要談的工具使用場景比較，並加入 Gemini 與 Antigravity。不要把工具講成排名，而是讓學生能依任務選入口：搜尋、長文整理、長 context multimodal、repo 修改、IDE 即時輔助或 agentic IDE。");
 }
 
 function slideToolToWorkflow(p) {
@@ -361,14 +362,16 @@ function slideToolToWorkflow(p) {
 
   const rows = [
     ["Perplexity 類", "搜尋策略、候選文獻、來源連結", "查 PMID / DOI / database record"],
+    ["Gemini 類", "多模態整理、文件對照、Workspace 草稿", "抽樣核對來源、版本與上下文"],
     ["Claude 類", "摘要、比較表、研究筆記初稿", "逐段對來源與欄位定義"],
     ["Codex 類", "腳本修改、資料處理程式、測試結果", "看 diff、跑 test、檢查輸出檔"],
     ["Copilot 類", "局部程式碼片段、函式補完", "用 lint、unit test、review 限縮風險"],
+    ["Antigravity 類", "plan、code change、browser / terminal artifact", "權限 gate、sandbox、test log"],
   ];
   const colX = [110, 330, 650];
   const colW = [180, 270, 480];
   ["工具入口", "適合交付", "必要檢查"].forEach((label, i) => {
-    addText(slide, `head-${i}`, label, { left: colX[i], top: 260, width: colW[i], height: 28 }, {
+    addText(slide, `head-${i}`, label, { left: colX[i], top: 254, width: colW[i], height: 28 }, {
       fontSize: 18,
       bold: true,
       color: [C.indigo, C.teal, C.amber][i],
@@ -376,21 +379,21 @@ function slideToolToWorkflow(p) {
     });
   });
   rows.forEach(([tool, artifact, check], i) => {
-    const y = 308 + i * 70;
-    addSurface(slide, `row-bg-${i}`, 92, y - 10, 1096, 58, i % 2 === 0 ? C.white : C.grayBg, C.line);
-    addText(slide, `tool-${i}`, tool, { left: colX[0], top: y + 4, width: colW[0], height: 26 }, {
-      fontSize: 18,
+    const y = 294 + i * 52;
+    addSurface(slide, `row-bg-${i}`, 92, y - 8, 1096, 44, i % 2 === 0 ? C.white : C.grayBg, C.line);
+    addText(slide, `tool-${i}`, tool, { left: colX[0], top: y + 2, width: colW[0], height: 22 }, {
+      fontSize: 16,
       bold: true,
-      color: [C.coral, C.indigo, C.teal, C.amber][i],
+      color: [C.coral, C.teal, C.indigo, C.teal, C.amber, C.indigo][i],
       alignment: "center",
       typeface: EN_FONT,
     });
-    addText(slide, `artifact-${i}`, artifact, { left: colX[1], top: y + 2, width: colW[1], height: 30 }, {
-      fontSize: 18,
+    addText(slide, `artifact-${i}`, artifact, { left: colX[1], top: y, width: colW[1], height: 24 }, {
+      fontSize: 16,
       color: C.ink,
     });
-    addText(slide, `check-${i}`, check, { left: colX[2], top: y + 2, width: colW[2], height: 30 }, {
-      fontSize: 18,
+    addText(slide, `check-${i}`, check, { left: colX[2], top: y, width: colW[2], height: 24 }, {
+      fontSize: 16,
       color: C.secondary,
     });
   });

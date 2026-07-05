@@ -107,11 +107,13 @@ _課程細綱版本：2026-07-05。對象為大學生、研究生與生醫研究
   - State：任務記憶、檔案、log、版本資訊
   - Action loop：plan、act、observe、verify、revise、stop
   - Human review：高風險輸出需要人工判斷
-- Claude、Codex、Copilot、Perplexity 類工具的使用場景比較
+- Claude、Gemini、Codex、Copilot、Perplexity、Antigravity 類工具的使用場景比較
   - Claude 類：長文推理、文件整理、研究筆記與摘要初稿
+  - Gemini 類：長 context、多模態資料理解、Google 生態整合與大量文件對照
   - Codex 類：repo-grounded 程式修改、測試、diff review 與 CLI workflow
   - Copilot 類：IDE 內即時補完、局部重構與常用 API 輔助
   - Perplexity 類：web-grounded 搜尋、文獻線索、citation 與來源追蹤
+  - Antigravity 類：agentic IDE、多 agent 工作、browser / terminal 操作與可驗證 artifacts
   - 工具選擇要回到 artifact、檢查點與 biomedical 風險，而不是只看品牌名稱
 - Vibe coding 的合理使用方式
   - 適合快速探索、草擬 prototype、改寫小工具、產生測試案例
