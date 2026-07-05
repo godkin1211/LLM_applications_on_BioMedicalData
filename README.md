@@ -26,6 +26,7 @@ The presentation scripts require the OpenAI artifact presentation runtime used d
 ## Course syllabus
 
 - `docs/course-syllabus.md`: Detailed three-day syllabus, session-level teaching plan, lab outputs, harness engineering module, loop engineering module, and hackathon rubric.
+- `docs/supplement-baoyu-agent-practices.md`: Supplemental reading and classroom activities based on Baoyu's public LLM / agent practice notes.
 
 ## Current design direction
 

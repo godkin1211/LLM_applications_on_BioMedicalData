@@ -668,6 +668,7 @@ project/
 | `slides/lesson-04-desktop-agent-literature-evidence-workflow.pptx` | Day 1 第 4 堂，文獻搜尋、evidence table、research notes | 已完成 |
 | `demos/lesson-04-literature-evidence-workflow/` | Lesson 04 完整 demo：task spec、prompts、source inventory、evidence table、research note | 已完成 |
 | `slides/lesson-05-biomedical-evidence-table-hands-on.pptx` | Day 1 第 5 堂，desktop biomedical workflow hands-on lab | 已完成 |
+| `docs/supplement-baoyu-agent-practices.md` | 宝玉 LLM / agent 實務分享延伸教材：harness、context、skills、多 agent、verification activities | 已完成 |
 | `docs/course-syllabus.md` | 本課程詳細課綱 | 本文件 |
 
 後續投影片建議依照下列順序製作：
