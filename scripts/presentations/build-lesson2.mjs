@@ -935,13 +935,13 @@ function slide18(p) {
     width: 720,
     height: 40,
   }, { fontSize: 26, color: "#DDE4E8" });
+  addLine(slide, "model-to-bus", 832, 310, 832, 502, "#52616D", 1.2);
+  addLine(slide, "context-to-bus", 706, 407, 832, 407, "#52616D", 1.2);
+  addLine(slide, "bus-to-tools", 832, 407, 950, 407, "#52616D", 1.2);
   addNode(slide, "model", "Model", 748, 240, 168, 70, C.indigo, C.indigoLight, 26, EN_FONT);
   addNode(slide, "context", "Context", 560, 382, 146, 50, "#8C98A1", "#26313A", 16, EN_FONT);
   addNode(slide, "tools", "Tools", 950, 382, 124, 50, "#8C98A1", "#26313A", 16, EN_FONT);
-  addNode(slide, "verify", "Verify", 760, 502, 132, 50, "#8C98A1", "#26313A", 16, EN_FONT);
-  addLine(slide, "l1", 706, 406, 748, 278, "#52616D", 1.2);
-  addLine(slide, "l2", 916, 278, 950, 406, "#52616D", 1.2);
-  addLine(slide, "l3", 832, 310, 826, 502, "#52616D", 1.2);
+  addNode(slide, "verify", "Verify", 766, 502, 132, 50, "#8C98A1", "#26313A", 16, EN_FONT);
   addText(slide, "wrap", "這堂建立 workflow 外框；下一堂打開 model 層，理解 token、context、hallucination 與 tool use。", {
     left: 130,
     top: 514,
