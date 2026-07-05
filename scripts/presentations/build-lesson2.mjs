@@ -10,13 +10,14 @@ const FINAL_PPTX = path.join(REPO_ROOT, "slides", "lesson-02-ai-agents-vibe-codi
 const W = 1280;
 const H = 720;
 const frame = { left: 76, top: 58, width: 1128, height: 594 };
-const TOTAL = 11;
+const TOTAL = 18;
 
 const C = {
   bg: "#F7F8F6",
   grayBg: "#EEF1F2",
   ink: "#17202A",
   secondary: "#5C6670",
+  muted: "#8C98A1",
   teal: "#0E8F88",
   tealLight: "#EAF8F6",
   indigo: "#3446A8",
@@ -59,7 +60,7 @@ function addText(slide, name, text, position, style = {}) {
 }
 
 function addEyebrow(slide, text, color = C.indigo) {
-  return addText(slide, "eyebrow", text, { left: frame.left, top: frame.top, width: 620, height: 30 }, {
+  return addText(slide, "eyebrow", text, { left: frame.left, top: frame.top, width: 700, height: 30 }, {
     fontSize: 15,
     bold: true,
     color,
@@ -67,8 +68,8 @@ function addEyebrow(slide, text, color = C.indigo) {
   });
 }
 
-function addTitle(slide, text, y = 96, size = 36, width = 1020) {
-  return addText(slide, "title", text, { left: frame.left, top: y, width, height: 96 }, {
+function addTitle(slide, text, y = 96, size = 36, width = 1050) {
+  return addText(slide, "title", text, { left: frame.left, top: y, width, height: 92 }, {
     fontSize: size,
     bold: true,
     color: C.ink,
@@ -80,7 +81,7 @@ function addFooter(slide, n) {
   addText(slide, "footer", `AI agents, vibe coding, desktop utilities  |  ${n}/${TOTAL}`, {
     left: frame.left,
     top: 668,
-    width: 520,
+    width: 560,
     height: 22,
   }, { fontSize: 12, color: C.secondary, typeface: EN_FONT });
 }
@@ -89,34 +90,20 @@ function addDarkFooter(slide, n) {
   addText(slide, "footer-dark", `AI agents, vibe coding, desktop utilities  |  ${n}/${TOTAL}`, {
     left: frame.left,
     top: 668,
-    width: 520,
+    width: 560,
     height: 22,
   }, { fontSize: 12, color: "#B7C0C7", typeface: EN_FONT });
 }
 
-function addBulletList(slide, name, items, position, options = {}) {
-  const shape = slide.shapes.add({
-    geometry: "textbox",
+function addSurface(slide, name, x, y, w, h, fill = C.white, line = C.line) {
+  return slide.shapes.add({
+    geometry: "roundRect",
     name,
-    position,
-    fill: "none",
-    line: { style: "solid", fill: "none", width: 0 },
+    position: { left: x, top: y, width: w, height: h },
+    fill,
+    line: { style: "solid", fill: line, width: 1 },
+    borderRadius: 8,
   });
-  shape.text.set(items.map((item) => ({
-    bulletCharacter: "•",
-    marginLeft: options.marginLeft ?? 24,
-    indent: options.indent ?? -12,
-    spaceAfter: options.spaceAfter ?? 9,
-    runs: Array.isArray(item) ? item : [item],
-  })));
-  shape.text.style = {
-    fontSize: options.fontSize ?? 24,
-    color: options.color ?? C.ink,
-    lineSpacing: options.lineSpacing ?? 1.08,
-    typeface: options.typeface ?? FONT,
-    insets: { top: 0, right: 0, bottom: 0, left: 0 },
-  };
-  return shape;
 }
 
 function addNode(slide, name, label, x, y, w, h, color, fill = C.white, fontSize = 18, typeface = FONT) {
@@ -125,7 +112,7 @@ function addNode(slide, name, label, x, y, w, h, color, fill = C.white, fontSize
     name,
     position: { left: x, top: y, width: w, height: h },
     fill,
-    line: { style: "solid", fill: color, width: 1.4 },
+    line: { style: "solid", fill: color, width: 1.35 },
     borderRadius: 8,
   });
   node.text = label;
@@ -142,49 +129,41 @@ function addNode(slide, name, label, x, y, w, h, color, fill = C.white, fontSize
   return node;
 }
 
-function addPill(slide, name, text, x, y, w, color, fill = C.white, fontSize = 16) {
-  return addNode(slide, name, text, x, y, w, 38, color, fill, fontSize, EN_FONT);
-}
-
-function connect(slide, from, to, color = C.secondary, dashed = false, kind = "straight") {
-  return slide.shapes.connect(from, to, {
-    kind,
-    fromSide: "right",
-    toSide: "left",
-    line: { style: dashed ? "dashed" : "solid", fill: color, width: 1.6 },
-    tail: { type: "arrow", width: "sm", length: "sm" },
-  });
-}
-
-function vConnect(slide, from, to, color = C.secondary, dashed = false) {
-  return slide.shapes.connect(from, to, {
-    kind: "straight",
-    fromSide: "bottom",
-    toSide: "top",
-    line: { style: dashed ? "dashed" : "solid", fill: color, width: 1.5 },
-    tail: { type: "arrow", width: "sm", length: "sm" },
-  });
-}
-
-function addLine(slide, name, x1, y1, x2, y2, color, width = 1.5, dashed = false) {
+function addLine(slide, name, x1, y1, x2, y2, color, width = 1.4, dashed = false) {
+  const left = Math.min(x1, x2);
+  const top = Math.min(y1, y2);
   return slide.shapes.add({
     geometry: "line",
     name,
-    position: { left: x1, top: y1, width: x2 - x1, height: y2 - y1 },
+    position: { left, top, width: Math.abs(x2 - x1), height: Math.abs(y2 - y1) },
     fill: "none",
     line: { style: dashed ? "dashed" : "solid", fill: color, width },
   });
 }
 
-function addSurface(slide, name, x, y, w, h, fill = C.white, line = C.line) {
-  return slide.shapes.add({
-    geometry: "roundRect",
+function addBulletList(slide, name, items, position, options = {}) {
+  const shape = slide.shapes.add({
+    geometry: "textbox",
     name,
-    position: { left: x, top: y, width: w, height: h },
-    fill,
-    line: { style: "solid", fill: line, width: 1 },
-    borderRadius: 8,
+    position,
+    fill: "none",
+    line: { style: "solid", fill: "none", width: 0 },
   });
+  shape.text.set(items.map((item) => ({
+    bulletCharacter: "•",
+    marginLeft: options.marginLeft ?? 22,
+    indent: options.indent ?? -10,
+    spaceAfter: options.spaceAfter ?? 7,
+    runs: [item],
+  })));
+  shape.text.style = {
+    fontSize: options.fontSize ?? 22,
+    color: options.color ?? C.ink,
+    lineSpacing: options.lineSpacing ?? 1.08,
+    typeface: options.typeface ?? FONT,
+    insets: { top: 0, right: 0, bottom: 0, left: 0 },
+  };
+  return shape;
 }
 
 function addSpeakerNotes(slide, notes) {
@@ -192,244 +171,368 @@ function addSpeakerNotes(slide, notes) {
   slide.speakerNotes.setVisible(true);
 }
 
+function addHeader(slide, eyebrow, title, n, color = C.indigo) {
+  addEyebrow(slide, eyebrow, color);
+  addTitle(slide, title);
+  addFooter(slide, n);
+}
+
 function slide1(p) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
   addEyebrow(slide, "LESSON 02", C.indigo);
-  addText(slide, "lesson-title", "Introduction to AI agents,\nvibe coding, and desktop utilities", {
+  addText(slide, "lesson-title", "AI agent 是可檢查的研究工作流", {
     left: frame.left,
-    top: 116,
-    width: 620,
-    height: 150,
-  }, { fontSize: 36, bold: true, color: C.ink, lineSpacing: 0.94, typeface: EN_FONT });
-  addText(slide, "subtitle", "從聊天，進到可執行、可檢查的研究流程", {
+    top: 120,
+    width: 680,
+    height: 116,
+  }, { fontSize: 42, bold: true, color: C.ink, lineSpacing: 0.95 });
+  addText(slide, "subtitle", "從聊天，進到能讀檔、查資料、跑工具、留下證據的流程", {
     left: frame.left,
-    top: 296,
-    width: 610,
-    height: 46,
-  }, { fontSize: 27, color: C.indigo, bold: true });
+    top: 264,
+    width: 680,
+    height: 68,
+  }, { fontSize: 25, color: C.indigo, bold: true });
   addBulletList(slide, "questions", [
-    "AI agent 比 chatbot 多了什麼？",
-    "vibe coding 適合解決什麼問題？",
-    "desktop utilities 如何接進研究流程？",
-  ], { left: frame.left, top: 390, width: 580, height: 150 }, { fontSize: 24, spaceAfter: 14 });
+    "什麼任務適合交給 agent？",
+    "vibe coding 要怎麼用才不失控？",
+    "desktop utilities 如何接進 biomedical workflow？",
+  ], { left: frame.left, top: 392, width: 650, height: 150 }, { fontSize: 23, spaceAfter: 12 });
 
-  const labels = [
-    ["Ask", C.secondary],
-    ["Plan", C.indigo],
-    ["Use tools", C.teal],
-    ["Verify", C.amber],
-    ["Deliver", C.teal],
-  ];
-  let prev = null;
-  labels.forEach((item, i) => {
-    const node = addNode(slide, `flow-${i}`, item[0], 700 + i * 96, 250 + (i % 2) * 70, 82, 50, item[1], item[1] === C.amber ? C.amberLight : C.white, 16, EN_FONT);
-    if (prev) connect(slide, prev, node, i === 3 ? C.amber : C.indigo, false);
-    prev = node;
-  });
-  addText(slide, "right-note", "agent workflow = goal + tools + checks", {
-    left: 736,
-    top: 456,
-    width: 390,
+  addLine(slide, "flow-line-1", 740, 250, 1055, 250, C.line, 1.4);
+  addLine(slide, "flow-line-2", 1055, 250, 1055, 436, C.line, 1.4);
+  addLine(slide, "flow-line-3", 740, 436, 1055, 436, C.line, 1.4);
+  addNode(slide, "ask", "Ask", 700, 222, 94, 56, C.secondary, C.white, 18, EN_FONT);
+  addNode(slide, "plan", "Plan", 856, 222, 94, 56, C.indigo, C.indigoLight, 18, EN_FONT);
+  addNode(slide, "tools", "Tools", 1012, 222, 104, 56, C.teal, C.tealLight, 18, EN_FONT);
+  addNode(slide, "verify", "Verify", 980, 408, 136, 56, C.amber, C.amberLight, 18, EN_FONT);
+  addNode(slide, "deliver", "Deliver", 700, 408, 136, 56, C.teal, C.white, 18, EN_FONT);
+  addText(slide, "right-note", "goal + tools + state + checks", {
+    left: 718,
+    top: 534,
+    width: 380,
     height: 36,
-  }, { fontSize: 22, bold: true, color: C.secondary, alignment: "center", typeface: EN_FONT });
+  }, { fontSize: 23, bold: true, color: C.secondary, alignment: "center", typeface: EN_FONT });
   addFooter(slide, 1);
-  addSpeakerNotes(slide, "開場先定位第二堂課：不是介紹工具，也不是 prompt 技巧，而是建立 agent workflow 的操作框架。學生要開始學會判斷哪些研究任務能被拆成可檢查、可重現的流程。");
+  addSpeakerNotes(slide, "新版 Lesson 02 的重心是判斷與拆解。學生要知道 agent 不是比較會聊天的模型，而是能和工具、檔案、資料來源、驗證規則一起工作的研究流程。");
 }
 
 function slide2(p) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
-  addEyebrow(slide, "LESSON MAP", C.teal);
-  addTitle(slide, "本堂課把 agent 放進研究者每天會遇到的工作流");
-  const modules = [
-    ["Agent", "從回答問題到執行任務", C.indigo],
-    ["Vibe coding", "快速做出可測試原型", C.indigo],
-    ["Desktop utilities", "連接檔案、瀏覽器與腳本", C.teal],
-    ["Biomedical workflow", "讓 evidence 可以被追溯", C.teal],
+  addHeader(slide, "RUNNING EXAMPLE", "用同一個 biomedical 任務貫穿整堂課", 2, C.teal);
+  addText(slide, "scenario", "任務：整理 EGFR、ALK、TP53 與肺癌治療或研究關聯的 evidence table", {
+    left: 104,
+    top: 190,
+    width: 980,
+    height: 46,
+  }, { fontSize: 28, bold: true, color: C.ink });
+  const rows = [
+    ["Entities", "gene / disease / drug / variant"],
+    ["Evidence", "claim / PMID / DOI / source span"],
+    ["Checks", "gene symbol / citation / guideline / review"],
+    ["Output", "table + research note + limitations"],
   ];
-  modules.forEach((m, i) => {
-    const x = 94 + i * 288;
-    addNode(slide, `module-${i}`, m[0], x, 250, 220, 62, m[2], C.white, 24, EN_FONT);
-    addText(slide, `module-copy-${i}`, m[1], { left: x + 4, top: 334, width: 212, height: 56 }, {
-      fontSize: 20,
+  rows.forEach((row, i) => {
+    const y = 282 + i * 72;
+    addNode(slide, `row-head-${i}`, row[0], 150, y, 170, 48, i < 2 ? C.indigo : C.teal, C.white, 18, EN_FONT);
+    addText(slide, `row-copy-${i}`, row[1], { left: 370, top: y + 11, width: 620, height: 28 }, {
+      fontSize: 22,
       color: C.secondary,
-      alignment: "center",
+      typeface: EN_FONT,
     });
-    if (i < modules.length - 1) addLine(slide, `module-line-${i}`, x + 220, 281, x + 288, 281, C.line, 1.4);
+    addLine(slide, `row-line-${i}`, 330, y + 24, 350, y + 24, C.line, 1.2);
   });
-  addText(slide, "bottom-note", "這一堂的目標：學會判斷 agent 能做什麼、如何做、怎麼檢查。", {
-    left: 172,
-    top: 534,
-    width: 880,
-    height: 42,
-  }, { fontSize: 25, bold: true, color: C.ink, alignment: "center" });
-  addFooter(slide, 2);
-  addSpeakerNotes(slide, "用四段 roadmap 建立本堂課結構。這堂從 agent 概念進到 vibe coding，再到 desktop utilities，最後回到 biomedical workflow。");
+  addText(slide, "note", "這堂課不追求一次產出完整答案，而是學會把任務拆成可檢查步驟。", {
+    left: 190,
+    top: 602,
+    width: 900,
+    height: 34,
+  }, { fontSize: 23, bold: true, color: C.coral, alignment: "center" });
+  addSpeakerNotes(slide, "用 EGFR、ALK、TP53 的 evidence table 做貫穿案例。這個任務有文獻、資料庫、表格、citation 和 review，足以展示 agent workflow，但範圍仍可控制。");
 }
 
 function slide3(p) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
-  addEyebrow(slide, "CHATBOT VS AGENT", C.indigo);
-  addTitle(slide, "Chatbot 回答問題；agent 在目標下執行並檢查");
-
-  addSurface(slide, "chatbot-surface", 86, 202, 500, 314, C.white, C.line);
-  addText(slide, "chatbot-head", "Chatbot", { left: 116, top: 226, width: 210, height: 42 }, {
-    fontSize: 28,
-    bold: true,
-    color: C.secondary,
-    typeface: EN_FONT,
+  addHeader(slide, "AGENT MATURITY", "Agent 不是單一型態，而是自動化程度的光譜", 3, C.indigo);
+  const levels = [
+    ["Chatbot", "回答問題", C.secondary],
+    ["Assistant", "摘要與整理", C.teal],
+    ["Tool user", "查資料、讀檔、跑工具", C.indigo],
+    ["Workflow agent", "多步驟執行與檢查", C.amber],
+    ["Autonomous", "長時間自行操作", C.coral],
+  ];
+  addLine(slide, "ladder-line", 138, 348, 1130, 348, C.line, 2);
+  levels.forEach((level, i) => {
+    const x = 92 + i * 228;
+    addNode(slide, `level-${i}`, level[0], x, 268, 176, 58, level[2], i === 4 ? C.coralLight : C.white, 18, EN_FONT);
+    addText(slide, `level-copy-${i}`, level[1], { left: x + 2, top: 386, width: 172, height: 60 }, {
+      fontSize: 19,
+      color: C.secondary,
+      alignment: "center",
+    });
   });
-  const prompt = addNode(slide, "prompt", "Prompt", 144, 330, 132, 54, C.secondary, C.white, 18, EN_FONT);
-  const response = addNode(slide, "response", "Response", 384, 330, 142, 54, C.secondary, C.white, 18, EN_FONT);
-  connect(slide, prompt, response, C.secondary);
-  addText(slide, "chatbot-copy", "單步互動，主要產出文字。", { left: 140, top: 432, width: 350, height: 34 }, {
-    fontSize: 22,
-    color: C.secondary,
-  });
-
-  addSurface(slide, "agent-surface", 690, 202, 500, 314, C.white, C.line);
-  addText(slide, "agent-head", "AI Agent", { left: 720, top: 226, width: 220, height: 42 }, {
-    fontSize: 28,
-    bold: true,
-    color: C.indigo,
-    typeface: EN_FONT,
-  });
-  const goal = addNode(slide, "goal", "Goal", 720, 318, 94, 48, C.indigo, C.indigoLight, 16, EN_FONT);
-  const plan = addNode(slide, "plan", "Plan", 850, 318, 94, 48, C.indigo, C.white, 16, EN_FONT);
-  const tools = addNode(slide, "tools", "Tools", 980, 318, 94, 48, C.teal, C.white, 16, EN_FONT);
-  const verify = addNode(slide, "verify", "Verify", 980, 414, 94, 48, C.amber, C.amberLight, 16, EN_FONT);
-  const output = addNode(slide, "output", "Output", 850, 414, 94, 48, C.teal, C.white, 16, EN_FONT);
-  connect(slide, goal, plan, C.indigo);
-  connect(slide, plan, tools, C.indigo);
-  vConnect(slide, tools, verify, C.amber);
-  connect(slide, output, verify, C.amber);
-  addLine(slide, "agent-return-line", 850, 438, 768, 438, C.amber, 1.4, true);
-  addLine(slide, "agent-return-up", 768, 438, 768, 366, C.amber, 1.4, true);
-  addText(slide, "agent-copy", "多步流程，包含工具、狀態與檢查。", { left: 720, top: 532, width: 420, height: 34 }, {
-    fontSize: 22,
-    color: C.secondary,
-  });
-  addFooter(slide, 3);
-  addSpeakerNotes(slide, "用簡單對比建立核心概念。Chatbot 像互動式文字介面；agent 則像可以拿資料、查資料庫、寫程式、跑檢查、修正輸出的流程執行者。");
+  addText(slide, "takeaway", "本課程的重點在 tool-using 與 workflow agent，不鼓勵無監督 autonomous use。", {
+    left: 154,
+    top: 552,
+    width: 920,
+    height: 42,
+  }, { fontSize: 24, bold: true, color: C.ink, alignment: "center" });
+  addSpeakerNotes(slide, "學生常把 agent 想成一個產品名稱。這張把它拆成成熟度光譜，讓學生知道我們要學的是可檢查的 tool-using 與 workflow agent。");
 }
 
 function slide4(p) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
-  addEyebrow(slide, "AGENT COMPONENTS", C.teal);
-  addTitle(slide, "Agent 是一組可組合元件，不只是模型");
-  const center = addNode(slide, "model", "Model\n推理與生成", 548, 328, 184, 82, C.indigo, C.indigoLight, 22);
-  const items = [
-    ["Context", "任務、資料、限制", 246, 230, C.secondary, C.white],
-    ["Tools", "搜尋、讀檔、查 DB", 820, 230, C.teal, C.tealLight],
-    ["Memory / state", "進度與中間結果", 238, 446, C.secondary, C.white],
-    ["Plan", "拆解任務", 840, 446, C.indigo, C.white],
-    ["Action loop", "執行與觀察", 448, 188, C.indigo, C.white],
-    ["Verification", "檢查與停止條件", 468, 542, C.amber, C.amberLight],
+  addHeader(slide, "CHATBOT VS AGENT", "Chatbot 產生回答；agent 交付可檢查 artifact", 4, C.indigo);
+  addSurface(slide, "left", 92, 204, 480, 312, C.white, C.line);
+  addSurface(slide, "right", 708, 204, 480, 312, C.white, C.line);
+  addText(slide, "left-title", "Chatbot answer", { left: 128, top: 232, width: 260, height: 36 }, {
+    fontSize: 25,
+    bold: true,
+    color: C.secondary,
+    typeface: EN_FONT,
+  });
+  addText(slide, "right-title", "Agent workflow", { left: 744, top: 232, width: 280, height: 36 }, {
+    fontSize: 25,
+    bold: true,
+    color: C.indigo,
+    typeface: EN_FONT,
+  });
+  addNode(slide, "prompt", "Prompt", 144, 334, 132, 54, C.secondary, C.white, 18, EN_FONT);
+  addNode(slide, "response", "Response", 384, 334, 142, 54, C.secondary, C.white, 18, EN_FONT);
+  addLine(slide, "chat-line", 276, 361, 384, 361, C.secondary, 1.6);
+  addText(slide, "left-copy", "看起來完整，但來源、欄位與限制常不清楚。", { left: 140, top: 442, width: 350, height: 34 }, {
+    fontSize: 21,
+    color: C.secondary,
+  });
+  const nodes = [
+    ["Goal", 746, 318, C.indigo],
+    ["Tools", 884, 318, C.teal],
+    ["Evidence", 1022, 318, C.teal],
+    ["Verify", 1022, 420, C.amber],
+    ["Artifact", 884, 420, C.indigo],
   ];
-  for (const [head, sub, x, y, color, fill] of items) {
-    const node = addNode(slide, `component-${head}`, `${head}\n${sub}`, x, y, 190, 62, color, fill, 16, head.includes("/") || head === "Context" || head === "Tools" ? EN_FONT : FONT);
-    slide.shapes.connect(center, node, { kind: "straight", line: { style: "solid", fill: C.line, width: 1.2 } });
-  }
-  center.bringToFront();
-  addFooter(slide, 4);
-  addSpeakerNotes(slide, "介紹 agent 不是單一模型，而是系統組合。Model 只是其中一部分；真正影響品質的是 context 是否完整、tools 是否可靠、state 是否能追蹤、輸出是否能被驗證。");
+  addLine(slide, "a1", 830, 342, 884, 342, C.indigo, 1.5);
+  addLine(slide, "a2", 968, 342, 1022, 342, C.teal, 1.5);
+  addLine(slide, "a3", 1070, 372, 1070, 420, C.amber, 1.5);
+  addLine(slide, "a4", 970, 444, 1022, 444, C.amber, 1.5);
+  nodes.forEach(([label, x, y, color]) => addNode(slide, `agent-${label}`, label, x, y, 108, 54, color, color === C.amber ? C.amberLight : C.white, 16, EN_FONT));
+  addText(slide, "right-copy", "重點不是更像人，而是能留下可審核輸出。", { left: 744, top: 532, width: 400, height: 34 }, {
+    fontSize: 21,
+    color: C.secondary,
+  });
+  addSpeakerNotes(slide, "把原本 chatbot vs agent 的概念再拉到 artifact。研究工作不是要得到一段話，而是要得到可檢查、可重跑、可交接的產物。");
 }
 
 function slide5(p) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
-  addEyebrow(slide, "AGENT LOOP", C.indigo);
-  addTitle(slide, "Agent 的核心是一個可檢查的工作循環");
-  const goal = addNode(slide, "goal", "Goal", 162, 302, 116, 56, C.teal, C.tealLight, 19, EN_FONT);
-  const plan = addNode(slide, "plan", "Plan", 342, 202, 116, 56, C.indigo, C.white, 19, EN_FONT);
-  const act = addNode(slide, "act", "Act\nwith tools", 582, 202, 138, 64, C.teal, C.white, 18, EN_FONT);
-  const observe = addNode(slide, "observe", "Observe", 822, 302, 128, 56, C.secondary, C.white, 18, EN_FONT);
-  const verify = addNode(slide, "verify", "Verify", 582, 466, 138, 64, C.amber, C.amberLight, 20, EN_FONT);
-  const state = addNode(slide, "state", "Update\nstate", 342, 466, 116, 64, C.secondary, C.white, 18, EN_FONT);
-  connect(slide, goal, plan, C.indigo, false, "elbow");
-  connect(slide, plan, act, C.indigo);
-  connect(slide, act, observe, C.teal, false, "elbow");
-  connect(slide, observe, verify, C.amber, false, "elbow");
-  addLine(slide, "verify-state-clean", 458, 498, 582, 498, C.amber, 1.5);
-  connect(slide, state, goal, C.secondary, true, "elbow");
-  const human = addNode(slide, "human-gate", "Human review\ngate", 910, 466, 168, 64, C.amber, C.amberLight, 17, EN_FONT);
-  addLine(slide, "human-review-link", 720, 498, 910, 498, C.amber, 1.5, true);
-  for (const node of [goal, plan, act, observe, verify, state, human]) node.bringToFront();
-  addText(slide, "loop-note", "不是一次輸入、一次輸出，而是在約束內反覆觀察、修正、停止。", {
-    left: 160,
-    top: 594,
-    width: 820,
-    height: 34,
-  }, { fontSize: 23, bold: true, color: C.secondary, alignment: "center" });
-  addFooter(slide, 5);
-  addSpeakerNotes(slide, "這張是本堂課的核心圖。Agent workflow 不是一次輸入、一次輸出，而是 plan-action-observe-verify loop。生醫任務尤其需要 verification，因為錯 citation、錯 database ID、錯分析假設都可能造成嚴重後果。");
+  addHeader(slide, "AGENT COMPONENTS", "可靠 agent 由元件與邊界組成，不只是一個模型", 5, C.teal);
+  const center = addNode(slide, "model", "Model\n推理與生成", 548, 316, 184, 82, C.indigo, C.indigoLight, 22);
+  const items = [
+    ["Goal", "成功條件", 206, 210, C.teal, C.tealLight],
+    ["Context", "任務、資料、限制", 796, 210, C.secondary, C.white],
+    ["Tools", "搜尋、讀檔、查 DB", 164, 438, C.teal, C.white],
+    ["State", "進度與中間結果", 836, 438, C.secondary, C.white],
+    ["Verification", "檢查與停止條件", 486, 526, C.amber, C.amberLight],
+  ];
+  items.forEach(([head, sub, x, y, color, fill]) => {
+    addLine(slide, `line-${head}`, 640, 358, x + 95, y + 31, C.line, 1.1);
+    addNode(slide, `node-${head}`, `${head}\n${sub}`, x, y, 190, 62, color, fill, 16, head === "Context" || head === "Tools" ? EN_FONT : FONT);
+  });
+  center.bringToFront();
+  addSpeakerNotes(slide, "這張保留原本元件圖，但更強調元件與邊界。模型只是其中一個節點，workflow 品質還取決於 context、tools、state 與 verification。");
 }
 
 function slide6(p) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
-  addEyebrow(slide, "VERIFICATION BY DESIGN", C.amber);
-  addTitle(slide, "Verification 不是最後一步，而是 workflow 設計的一部分");
-  const artifacts = [
-    ["Evidence table", "PMID / DOI", C.teal],
-    ["Analysis script", "input / output / log", C.indigo],
-    ["Citation", "回到原文段落", C.amber],
-  ];
-  artifacts.forEach((a, i) => {
-    const x = 120 + i * 360;
-    const top = addNode(slide, `artifact-${i}`, a[0], x, 238, 230, 62, a[2], C.white, 20, EN_FONT);
-    const bottom = addNode(slide, `check-${i}`, a[1], x + 16, 368, 198, 56, a[2], i === 2 ? C.amberLight : C.white, 17);
-    vConnect(slide, top, bottom, a[2], true);
-  });
-  addText(slide, "stop", "Stop condition：什麼情況可以交付？什麼情況必須回到人工檢查？", {
-    left: 180,
-    top: 528,
-    width: 880,
-    height: 42,
-  }, { fontSize: 24, bold: true, color: C.coral, alignment: "center" });
-  addFooter(slide, 6);
-  addSpeakerNotes(slide, "強調可檢查是 agent workflow 的核心，不是附加功能。Evidence table 要能追到 PMID/DOI；分析腳本要能重跑；資料庫查詢要記錄 query 與版本；citation 要檢查是否真的支持該句。");
+  addHeader(slide, "AGENT LOOP", "Agent 的核心是一個會觀察、修正與停止的循環", 6, C.indigo);
+  addLine(slide, "goal-plan-a", 276, 322, 320, 322, C.indigo, 1.5);
+  addLine(slide, "goal-plan-b", 320, 230, 320, 322, C.indigo, 1.5);
+  addLine(slide, "goal-plan-c", 320, 230, 344, 230, C.indigo, 1.5);
+  addLine(slide, "plan-act", 460, 230, 586, 230, C.indigo, 1.5);
+  addLine(slide, "act-observe-a", 724, 230, 780, 230, C.teal, 1.5);
+  addLine(slide, "act-observe-b", 780, 230, 780, 322, C.teal, 1.5);
+  addLine(slide, "act-observe-c", 780, 322, 824, 322, C.teal, 1.5);
+  addLine(slide, "observe-verify-a", 888, 350, 888, 420, C.amber, 1.5);
+  addLine(slide, "observe-verify-b", 653, 420, 888, 420, C.amber, 1.5);
+  addLine(slide, "observe-verify-c", 653, 420, 653, 466, C.amber, 1.5);
+  addLine(slide, "verify-state", 464, 498, 584, 498, C.amber, 1.5);
+  addLine(slide, "state-goal-a", 120, 498, 340, 498, C.secondary, 1.5, true);
+  addLine(slide, "state-goal-b", 120, 322, 120, 498, C.secondary, 1.5, true);
+  addLine(slide, "state-goal-c", 120, 322, 160, 322, C.secondary, 1.5, true);
+  const goal = addNode(slide, "goal", "Goal", 160, 294, 116, 56, C.teal, C.tealLight, 19, EN_FONT);
+  const plan = addNode(slide, "plan", "Plan", 344, 202, 116, 56, C.indigo, C.white, 19, EN_FONT);
+  const act = addNode(slide, "act", "Act\nwith tools", 586, 198, 138, 64, C.teal, C.white, 18, EN_FONT);
+  const observe = addNode(slide, "observe", "Observe", 824, 294, 128, 56, C.secondary, C.white, 18, EN_FONT);
+  const verify = addNode(slide, "verify", "Verify", 584, 466, 138, 64, C.amber, C.amberLight, 20, EN_FONT);
+  const state = addNode(slide, "state", "Update\nstate", 340, 466, 124, 64, C.secondary, C.white, 18, EN_FONT);
+  const human = addNode(slide, "human", "Human review\ngate", 912, 466, 168, 64, C.amber, C.amberLight, 17, EN_FONT);
+  addLine(slide, "human-link", 722, 498, 912, 498, C.amber, 1.5, true);
+  for (const node of [goal, plan, act, observe, verify, state, human]) node.bringToFront();
+  addText(slide, "loop-note", "不是一次輸入、一次輸出；可靠性來自檢查點與停止條件。", {
+    left: 160,
+    top: 594,
+    width: 820,
+    height: 34,
+  }, { fontSize: 23, bold: true, color: C.secondary, alignment: "center" });
+  addSpeakerNotes(slide, "這張是本堂課的核心。Agent workflow 要能在工具輸出後觀察與驗證，必要時更新 state 或停止，而不是一直生成。");
 }
 
 function slide7(p) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
-  addEyebrow(slide, "VIBE CODING", C.indigo);
-  addTitle(slide, "Vibe coding 是快速探索，不是把責任交給模型");
-  const stages = [
-    ["Precise\nimplementation", "人主導細節", C.secondary],
-    ["Assisted\niteration", "agent 協助修改", C.indigo],
-    ["Natural-language\nbuild", "用語言快速原型", C.teal],
+  addHeader(slide, "WORKFLOW ARTIFACTS", "每一步都應留下之後能檢查的東西", 7, C.amber);
+  const rows = [
+    ["Goal", "task_spec.md", "任務、輸入、輸出與限制"],
+    ["Search", "query log", "關鍵字、日期、來源清單"],
+    ["Extract", "evidence table", "claim、source、status"],
+    ["Tool use", "tool log", "input、output、error"],
+    ["Verify", "check report", "通過、失敗、needs review"],
   ];
-  let prev = null;
-  stages.forEach((s, i) => {
-    const node = addNode(slide, `stage-${i}`, s[0], 150 + i * 330, 270, 240, 72, s[2], C.white, 20, EN_FONT);
-    addText(slide, `stage-sub-${i}`, s[1], { left: 160 + i * 330, top: 370, width: 220, height: 32 }, {
-      fontSize: 20,
-      color: C.secondary,
-      alignment: "center",
+  addSurface(slide, "table-bg", 96, 184, 1088, 386, C.white, C.line);
+  ["Step", "Artifact", "Why it matters"].forEach((h, i) => {
+    addText(slide, `h-${i}`, h, { left: [130, 380, 672][i], top: 216, width: [180, 220, 360][i], height: 28 }, {
+      fontSize: 18,
+      bold: true,
+      color: i === 2 ? C.teal : C.indigo,
+      typeface: EN_FONT,
     });
-    if (prev) connect(slide, prev, node, C.indigo);
-    prev = node;
   });
-  addText(slide, "fast-checks", "Fast iteration requires explicit checks.", {
-    left: 334,
-    top: 504,
-    width: 610,
-    height: 42,
-  }, { fontSize: 30, bold: true, color: C.amber, alignment: "center", typeface: EN_FONT });
-  addFooter(slide, 7);
-  addSpeakerNotes(slide, "Vibe coding 不是不用寫程式，而是用 agent 加速從想法到可跑原型。它適合低風險、可驗證、範圍清楚的任務，例如轉檔、整理表格、畫初步圖、產生分析腳本草稿。");
+  rows.forEach((r, i) => {
+    const y = 262 + i * 58;
+    addText(slide, `step-${i}`, r[0], { left: 130, top: y, width: 170, height: 26 }, { fontSize: 19, bold: true, color: C.indigo, typeface: EN_FONT });
+    addText(slide, `artifact-${i}`, r[1], { left: 380, top: y, width: 220, height: 26 }, { fontSize: 19, color: C.amber, typeface: EN_FONT });
+    addText(slide, `why-${i}`, r[2], { left: 672, top: y, width: 400, height: 26 }, { fontSize: 19, color: C.secondary });
+    addLine(slide, `row-${i}`, 118, y + 38, 1146, y + 38, C.line, 1);
+  });
+  addText(slide, "bottom", "沒有 artifact，就很難 debug、重跑或交接。", {
+    left: 250,
+    top: 602,
+    width: 780,
+    height: 34,
+  }, { fontSize: 24, bold: true, color: C.coral, alignment: "center" });
+  addSpeakerNotes(slide, "這張是新版的重要補強。學生要理解 agent workflow 的可追溯性來自 artifact，而不是來自模型宣稱自己做了什麼。");
 }
 
 function slide8(p) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
-  addEyebrow(slide, "RISK MATRIX", C.coral);
-  addTitle(slide, "Vibe coding 適合低模糊、低風險且可驗證的任務");
+  addHeader(slide, "TASK SUITABILITY", "適合 agent 的任務通常能被清楚驗證", 8, C.teal);
+  const good = ["輸入資料明確", "輸出格式固定", "可用外部來源檢查", "錯誤能早期發現", "不直接造成臨床行動"];
+  const bad = ["目標模糊", "只有主觀判斷", "缺少可查來源", "錯了不容易發現", "涉及治療或診斷決策"];
+  addSurface(slide, "good", 116, 216, 454, 322, C.tealLight, C.teal);
+  addSurface(slide, "bad", 710, 216, 454, 322, C.coralLight, C.coral);
+  addText(slide, "good-title", "Good fit", { left: 160, top: 252, width: 220, height: 34 }, { fontSize: 28, bold: true, color: C.teal, typeface: EN_FONT });
+  addText(slide, "bad-title", "Bad fit", { left: 754, top: 252, width: 220, height: 34 }, { fontSize: 28, bold: true, color: C.coral, typeface: EN_FONT });
+  addBulletList(slide, "good-list", good, { left: 166, top: 324, width: 330, height: 152 }, { fontSize: 21, spaceAfter: 7 });
+  addBulletList(slide, "bad-list", bad, { left: 760, top: 324, width: 330, height: 152 }, { fontSize: 21, spaceAfter: 7 });
+  addText(slide, "bottom", "先判斷任務能否驗證，再決定要不要讓 agent 參與。", {
+    left: 226,
+    top: 590,
+    width: 830,
+    height: 34,
+  }, { fontSize: 24, bold: true, color: C.ink, alignment: "center" });
+  addSpeakerNotes(slide, "這是學生最需要的判斷框架。不要從工具出發，而是先看任務是否有清楚輸入、固定輸出、外部來源與可發現的錯誤。");
+}
+
+function slide9(p) {
+  const slide = p.slides.add();
+  slide.background.fill = C.bg;
+  addHeader(slide, "BIOMEDICAL RED LINES", "有些 biomedical 輸出只能協助整理，不能直接定案", 9, C.coral);
+  const items = [
+    ["Diagnosis", "診斷或治療建議"],
+    ["Dosage", "藥物劑量"],
+    ["Variant", "pathogenicity final call"],
+    ["Clinical action", "臨床處置建議"],
+  ];
+  items.forEach((item, i) => {
+    const x = 126 + (i % 2) * 520;
+    const y = 220 + Math.floor(i / 2) * 142;
+    addSurface(slide, `risk-${i}`, x, y, 408, 96, C.coralLight, C.coral);
+    addText(slide, `risk-title-${i}`, item[0], { left: x + 28, top: y + 22, width: 180, height: 28 }, {
+      fontSize: 23,
+      bold: true,
+      color: C.coral,
+      typeface: EN_FONT,
+    });
+    addText(slide, `risk-copy-${i}`, item[1], { left: x + 220, top: y + 24, width: 150, height: 44 }, {
+      fontSize: 20,
+      color: C.ink,
+      alignment: "center",
+    });
+  });
+  addNode(slide, "gate", "Human review required", 448, 540, 384, 58, C.amber, C.amberLight, 24, EN_FONT);
+  addSpeakerNotes(slide, "生醫安全要變成規則。這些輸出可以由 agent 協助整理背景資料，但不能讓 agent 做 final call。");
+}
+
+function slide10(p) {
+  const slide = p.slides.add();
+  slide.background.fill = C.bg;
+  addHeader(slide, "VIBE CODING", "Vibe coding 是快速探索，不是把責任交給模型", 10, C.indigo);
+  const stages = [
+    ["Idea", "想法與資料"],
+    ["Prototype", "快速草擬"],
+    ["Run", "真的執行"],
+    ["Inspect", "看 diff 與輸出"],
+    ["Decide", "保留或重做"],
+  ];
+  addLine(slide, "stage-line", 184, 328, 1078, 328, C.line, 1.6);
+  stages.forEach((s, i) => {
+    const x = 112 + i * 228;
+    addNode(slide, `stage-${i}`, s[0], x, 276, 154, 58, i < 2 ? C.indigo : i === 3 ? C.amber : C.teal, C.white, 20, EN_FONT);
+    addText(slide, `stage-copy-${i}`, s[1], { left: x, top: 370, width: 154, height: 34 }, {
+      fontSize: 19,
+      color: C.secondary,
+      alignment: "center",
+    });
+  });
+  addText(slide, "bottom", "速度來自短迭代；安全來自明確檢查。", {
+    left: 320,
+    top: 548,
+    width: 640,
+    height: 40,
+  }, { fontSize: 29, bold: true, color: C.amber, alignment: "center" });
+  addSpeakerNotes(slide, "保留 vibe coding，但補上責任邊界。快速不是讓模型負責，而是讓人更快得到可檢查原型。");
+}
+
+function slide11(p) {
+  const slide = p.slides.add();
+  slide.background.fill = C.bg;
+  addHeader(slide, "SAFE VIBE LOOP", "安全的 vibe coding 一次只推進一個小步驟", 11, C.amber);
+  const steps = [
+    ["1", "Specify\nsmall task"],
+    ["2", "Read\nreal files"],
+    ["3", "Plan\nbefore edit"],
+    ["4", "Change\nsmall scope"],
+    ["5", "Run\nchecks"],
+    ["6", "Inspect\ndiff"],
+  ];
+  for (let i = 0; i < steps.length - 1; i++) {
+    addLine(slide, `line-${i}`, 182 + i * 184, 332, 240 + i * 184, 332, C.line, 1.4);
+  }
+  steps.forEach((s, i) => {
+    const x = 90 + i * 184;
+    addNode(slide, `num-${i}`, s[0], x, 292, 42, 42, C.amber, C.amberLight, 18, EN_FONT);
+    addNode(slide, `step-${i}`, s[1], x + 54, 272, 118, 82, i < 3 ? C.indigo : C.teal, C.white, 16, EN_FONT);
+  });
+  addSurface(slide, "rule", 228, 492, 824, 76, C.white, C.line);
+  addText(slide, "rule-text", "Rule: no broad rewrite, no hidden file changes, no unverified final claim.", {
+    left: 260,
+    top: 518,
+    width: 760,
+    height: 28,
+  }, { fontSize: 22, bold: true, color: C.coral, alignment: "center", typeface: EN_FONT });
+  addSpeakerNotes(slide, "這張是操作型 slide。學生可以照這個 loop 使用 coding agent 或 desktop agent：先讀真實檔案、先規劃、小範圍改、跑檢查、看 diff。");
+}
+
+function slide12(p) {
+  const slide = p.slides.add();
+  slide.background.fill = C.bg;
+  addHeader(slide, "RISK MATRIX", "Vibe coding 適合低模糊、低風險且可驗證的任務", 12, C.coral);
   const x = 228;
   const y = 208;
   const w = 780;
@@ -437,18 +540,8 @@ function slide8(p) {
   addSurface(slide, "matrix", x, y, w, h, C.white, C.line);
   addLine(slide, "vline", x + w / 2, y, x + w / 2, y + h, C.line, 1);
   addLine(slide, "hline", x, y + h / 2, x + w, y + h / 2, C.line, 1);
-  addText(slide, "axis-x", "Task ambiguity", { left: x + 260, top: y + h + 12, width: 260, height: 28 }, {
-    fontSize: 18,
-    color: C.secondary,
-    alignment: "center",
-    typeface: EN_FONT,
-  });
-  addText(slide, "axis-y", "Impact / risk", { left: x - 104, top: y + 148, width: 92, height: 34 }, {
-    fontSize: 18,
-    color: C.secondary,
-    alignment: "center",
-    typeface: EN_FONT,
-  });
+  addText(slide, "axis-x", "Task ambiguity", { left: x + 260, top: y + h + 12, width: 260, height: 28 }, { fontSize: 18, color: C.secondary, alignment: "center", typeface: EN_FONT });
+  addText(slide, "axis-y", "Impact / risk", { left: x - 104, top: y + 148, width: 92, height: 34 }, { fontSize: 18, color: C.secondary, alignment: "center", typeface: EN_FONT });
   addText(slide, "q1", "Parsing script\nReport draft", { left: x + 42, top: y + 230, width: 270, height: 62 }, { fontSize: 22, color: C.teal, bold: true, alignment: "center" });
   addText(slide, "q2", "Exploratory\nprototype", { left: x + 470, top: y + 230, width: 230, height: 62 }, { fontSize: 22, color: C.indigo, bold: true, alignment: "center" });
   addText(slide, "q3", "Validated\nanalysis tool", { left: x + 42, top: y + 54, width: 270, height: 62 }, { fontSize: 22, color: C.amber, bold: true, alignment: "center" });
@@ -459,101 +552,177 @@ function slide8(p) {
     width: 782,
     height: 34,
   }, { fontSize: 24, bold: true, color: C.ink, alignment: "center" });
-  addFooter(slide, 8);
-  addSpeakerNotes(slide, "Vibe coding 最大問題不是 syntax error，而是 silent wrongness。程式可能能跑，但欄位對錯、樣本過濾、normalization、統計檢定、citation 對應都可能有問題。");
+  addSpeakerNotes(slide, "保留原本風險矩陣。這張讓學生把 vibe coding 放在任務風險和模糊度之中，而不是把它當成萬用工作法。");
 }
 
-function slide9(p) {
+function slide13(p) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
-  addEyebrow(slide, "DESKTOP UTILITIES", C.teal);
-  addTitle(slide, "Desktop utilities 把日常研究任務接進 agent workflow");
-  const lanes = [
-    ["Researcher", "define goal\nreview output", C.amber],
-    ["Desktop agent", "plan actions\ncoordinate tools", C.indigo],
-    ["Local files / tools", "PDF, CSV\nterminal, scripts", C.secondary],
-    ["External sources", "browser\nbiomedical DB", C.teal],
+  addHeader(slide, "DESKTOP UTILITIES", "Desktop utilities 把研究者的日常材料接進 workflow", 13, C.teal);
+  const rows = [
+    ["Browser", "PubMed / guideline / database"],
+    ["Files", "PDF / CSV / Excel / notes"],
+    ["Terminal", "轉檔、檢查欄位、跑 script"],
+    ["Spreadsheet", "evidence table 與人工 review"],
+    ["Notes", "research log 與 limitations"],
   ];
-  lanes.forEach((l, i) => {
-    const y = 196 + i * 88;
-    addText(slide, `lane-label-${i}`, l[0], { left: 104, top: y + 18, width: 190, height: 28 }, {
-      fontSize: 20,
-      bold: true,
-      color: l[2],
+  rows.forEach((r, i) => {
+    const y = 206 + i * 68;
+    addNode(slide, `tool-${i}`, r[0], 150, y, 178, 48, i < 2 ? C.teal : C.indigo, i === 3 ? C.amberLight : C.white, 18, EN_FONT);
+    addText(slide, `use-${i}`, r[1], { left: 396, top: y + 10, width: 580, height: 28 }, {
+      fontSize: 21,
+      color: C.secondary,
+    });
+    addLine(slide, `link-${i}`, 338, y + 24, 376, y + 24, C.line, 1.2);
+  });
+  addText(slide, "bottom", "價值不是神奇自動化，而是減少手動搬運、遺漏與不可追溯。", {
+    left: 180,
+    top: 586,
+    width: 900,
+    height: 34,
+  }, { fontSize: 23, bold: true, color: C.secondary, alignment: "center" });
+  addSpeakerNotes(slide, "這張把 desktop utilities 的抽象能力映射到 biomedical 工作內容。重點是工具鏈，而不是產品清單。");
+}
+
+function slide14(p) {
+  const slide = p.slides.add();
+  slide.background.fill = C.bg;
+  addHeader(slide, "TOOL-USE LIFECYCLE", "每次工具呼叫都要能被觀察與記錄", 14, C.teal);
+  const steps = [
+    ["Call", "structured input"],
+    ["Observe", "tool output"],
+    ["Validate", "schema + source"],
+    ["Record", "log + artifact"],
+  ];
+  addLine(slide, "flow", 220, 338, 1060, 338, C.line, 1.6);
+  steps.forEach((s, i) => {
+    const x = 130 + i * 280;
+    addNode(slide, `step-${i}`, s[0], x, 286, 170, 60, i === 2 ? C.amber : C.teal, i === 2 ? C.amberLight : C.white, 22, EN_FONT);
+    addText(slide, `copy-${i}`, s[1], { left: x, top: 380, width: 170, height: 30 }, {
+      fontSize: 19,
+      color: C.secondary,
+      alignment: "center",
       typeface: EN_FONT,
     });
-    addLine(slide, `lane-line-${i}`, 298, y + 44, 1114, y + 44, C.line, 1);
-    if (i < 2) addNode(slide, `lane-a-${i}`, l[1], 438 + i * 150, y + 12, 160, 64, l[2], i === 0 ? C.amberLight : C.white, 16, EN_FONT);
   });
-  const d1 = addNode(slide, "pdf", "Read PDF", 388, 374, 126, 48, C.secondary, C.white, 16, EN_FONT);
-  const d2 = addNode(slide, "csv", "Clean CSV", 566, 374, 126, 48, C.secondary, C.white, 16, EN_FONT);
-  const d3 = addNode(slide, "script", "Run script", 744, 374, 126, 48, C.secondary, C.white, 16, EN_FONT);
-  const db = addNode(slide, "browser-db", "Browser\nbiomedical DB", 738, 462, 156, 58, C.teal, C.tealLight, 16, EN_FONT);
-  const d4 = addNode(slide, "browser", "Check source", 946, 462, 140, 48, C.teal, C.tealLight, 16, EN_FONT);
-  connect(slide, d1, d2, C.secondary);
-  connect(slide, d2, d3, C.secondary);
-  connect(slide, d3, db, C.teal, true, "elbow");
-  connect(slide, db, d4, C.teal);
-  addText(slide, "utility-note", "不是神奇工具；它的價值是減少手動搬運與遺漏。", {
-    left: 246,
-    top: 596,
+  addSurface(slide, "example", 210, 500, 860, 72, C.white, C.line);
+  addText(slide, "example-text", "Example: PubMed query -> PMID list -> DOI check -> evidence_table row", {
+    left: 252,
+    top: 524,
     width: 780,
-    height: 34,
-  }, { fontSize: 24, bold: true, color: C.secondary, alignment: "center" });
-  addFooter(slide, 9);
-  addSpeakerNotes(slide, "Desktop utilities 不是產品展示。重點是它們讓 agent 能接觸研究者每天真的在做的事情：PDF、Excel/CSV、資料夾、圖表、script、reference manager。");
+    height: 28,
+  }, { fontSize: 22, bold: true, color: C.indigo, alignment: "center", typeface: EN_FONT });
+  addSpeakerNotes(slide, "把 tool use 講成 lifecycle。重要的是每次工具呼叫都要有 input、output、validation 與 log，否則 agent 做過什麼很難被審查。");
 }
 
-function slide10(p) {
+function slide15(p) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
-  addEyebrow(slide, "MINI EXERCISE", C.amber);
-  addTitle(slide, "把一個研究任務改寫成 agent-ready workflow");
-  addText(slide, "exercise-task", "任務：整理某主題的 biomarker evidence", {
-    left: 138,
-    top: 184,
-    width: 780,
-    height: 44,
-  }, { fontSize: 29, bold: true, color: C.ink });
+  addHeader(slide, "FAILURE MODES", "Agent workflow 常見錯誤多半不是語法錯，而是流程錯", 15, C.coral);
+  const failures = [
+    ["Wrong tool", "查錯資料庫或讀錯檔"],
+    ["Context drift", "任務做一做偏掉"],
+    ["Citation laundering", "citation 支撐錯 claim"],
+    ["Silent data mutation", "欄位或樣本被改壞"],
+    ["No stop condition", "一直重試或太早交付"],
+    ["Prompt injection", "來源文字誘導 agent"],
+  ];
+  failures.forEach((f, i) => {
+    const x = 104 + (i % 3) * 370;
+    const y = 212 + Math.floor(i / 3) * 148;
+    addSurface(slide, `f-${i}`, x, y, 308, 104, i === 5 ? C.coralLight : C.white, i === 5 ? C.coral : C.line);
+    addText(slide, `f-title-${i}`, f[0], { left: x + 20, top: y + 22, width: 260, height: 28 }, {
+      fontSize: 20,
+      bold: true,
+      color: i === 5 ? C.coral : C.indigo,
+      typeface: EN_FONT,
+    });
+    addText(slide, `f-copy-${i}`, f[1], { left: x + 20, top: y + 62, width: 260, height: 28 }, {
+      fontSize: 18,
+      color: C.secondary,
+    });
+  });
+  addText(slide, "bottom", "失敗模式要寫進 task spec、checks 與 human review rule。", {
+    left: 220,
+    top: 584,
+    width: 840,
+    height: 34,
+  }, { fontSize: 24, bold: true, color: C.coral, alignment: "center" });
+  addSpeakerNotes(slide, "這張是新版重點之一。Lesson 03 會談 hallucination，這裡先談 workflow-level failure。學生要學會預先把失敗模式寫進規格和檢查。");
+}
+
+function slide16(p) {
+  const slide = p.slides.add();
+  slide.background.fill = C.bg;
+  addHeader(slide, "CLASS EXERCISE", "三個任務先判斷，再決定 agent 能做多少", 16, C.amber);
+  const cases = [
+    ["A", "PubMed 搜尋結果\n整理成 evidence table", C.teal],
+    ["B", "判斷某 variant\n是否 pathogenic", C.coral],
+    ["C", "幫一份 CSV 產生\nQC summary 與圖表", C.indigo],
+  ];
+  cases.forEach((c, i) => {
+    const x = 104 + i * 378;
+    addSurface(slide, `case-${i}`, x, 220, 314, 230, i === 1 ? C.coralLight : C.white, c[2]);
+    addNode(slide, `case-label-${i}`, c[0], x + 28, 252, 54, 54, c[2], C.white, 24, EN_FONT);
+    addText(slide, `case-copy-${i}`, c[1], { left: x + 56, top: 326, width: 210, height: 72 }, {
+      fontSize: 24,
+      bold: true,
+      color: C.ink,
+      alignment: "center",
+    });
+  });
+  addText(slide, "prompt", "每組標出：agent 可以做什麼、需要哪些工具、怎麼驗證、何時 human review。", {
+    left: 146,
+    top: 536,
+    width: 988,
+    height: 34,
+  }, { fontSize: 24, bold: true, color: C.secondary, alignment: "center" });
+  addSpeakerNotes(slide, "把 mini exercise 改成三案例判斷。這會讓學生主動使用 suitability、red lines、verification 和 artifacts 的框架。");
+}
+
+function slide17(p) {
+  const slide = p.slides.add();
+  slide.background.fill = C.bg;
+  addHeader(slide, "WORKSHEET", "把研究任務改寫成 agent-ready workflow", 17, C.amber);
   const fields = [
-    ["Goal", "要回答什麼？"],
-    ["Inputs", "文獻、資料庫、檔案"],
-    ["Tools", "搜尋、讀檔、查詢、腳本"],
-    ["Failure modes", "可能錯在哪裡？"],
-    ["Verification", "怎麼檢查？"],
+    ["Goal", "要回答什麼"],
+    ["Inputs", "資料與版本"],
+    ["Tools", "搜尋、讀檔、腳本"],
+    ["Artifacts", "表格、log、note"],
+    ["Checks", "來源與停止條件"],
   ];
   fields.forEach((f, i) => {
     const x = 104 + i * 218;
-    addSurface(slide, `worksheet-${i}`, x, 292, 184, 172, C.white, i === 4 ? C.amber : C.line);
-    addText(slide, `worksheet-head-${i}`, f[0], { left: x + 16, top: 314, width: 152, height: 26 }, {
+    addSurface(slide, `worksheet-${i}`, x, 242, 184, 198, C.white, i === 4 ? C.amber : C.line);
+    addText(slide, `worksheet-head-${i}`, f[0], { left: x + 16, top: 268, width: 152, height: 28 }, {
       fontSize: 19,
       bold: true,
       color: i === 4 ? C.amber : C.indigo,
       alignment: "center",
       typeface: EN_FONT,
     });
-    addText(slide, `worksheet-sub-${i}`, f[1], { left: x + 14, top: 362, width: 156, height: 62 }, {
+    addText(slide, `worksheet-sub-${i}`, f[1], { left: x + 14, top: 330, width: 156, height: 54 }, {
       fontSize: 18,
       color: C.secondary,
       alignment: "center",
     });
   });
-  addText(slide, "timebox", "5-8 分鐘，小組討論；標出哪些地方必須 human-in-the-loop。", {
-    left: 194,
-    top: 548,
-    width: 850,
-    height: 36,
-  }, { fontSize: 24, bold: true, color: C.coral, alignment: "center" });
-  addFooter(slide, 10);
-  addSpeakerNotes(slide, "互動活動。可給學生範例：整理 EGFR mutation 與肺癌標靶治療反應的 evidence table。請他們拆成目標、輸入資料、工具、每步輸出、檢查方式、哪些地方不能完全交給 agent。");
+  addSurface(slide, "deliverable", 206, 514, 868, 58, C.amberLight, C.amber);
+  addText(slide, "deliverable-text", "Deliverable: 一張 workflow 草圖 + 3 個 failure modes + 2 個 human review gates", {
+    left: 240,
+    top: 532,
+    width: 800,
+    height: 28,
+  }, { fontSize: 21, bold: true, color: C.amber, alignment: "center", typeface: EN_FONT });
+  addSpeakerNotes(slide, "這是課堂輸出。學生不是只回答問題，而是交出一張 agent-ready workflow worksheet，讓下一堂 LLM basics 和後面的 hands-on lab 可以接上。");
 }
 
-function slide11(p) {
+function slide18(p) {
   const slide = p.slides.add();
   slide.background.fill = C.ink;
   addText(slide, "transition-title", "Next: LLM basics", {
     left: 126,
-    top: 122,
+    top: 120,
     width: 560,
     height: 66,
   }, { fontSize: 48, bold: true, color: C.white, typeface: EN_FONT });
@@ -563,20 +732,21 @@ function slide11(p) {
     width: 720,
     height: 40,
   }, { fontSize: 26, color: "#DDE4E8" });
-  const model = addNode(slide, "model-highlight", "Model", 744, 262, 170, 70, C.indigo, C.indigoLight, 26, EN_FONT);
-  const context = addNode(slide, "context-dim", "Context", 574, 384, 130, 48, "#8C98A1", "#26313A", 16, EN_FONT);
-  const tools = addNode(slide, "tools-dim", "Tools", 950, 384, 120, 48, "#8C98A1", "#26313A", 16, EN_FONT);
-  const verify = addNode(slide, "verify-dim", "Verify", 760, 500, 132, 48, "#8C98A1", "#26313A", 16, EN_FONT);
-  slide.shapes.connect(model, context, { kind: "straight", line: { style: "solid", fill: "#52616D", width: 1.2 } });
-  slide.shapes.connect(model, tools, { kind: "straight", line: { style: "solid", fill: "#52616D", width: 1.2 } });
-  slide.shapes.connect(model, verify, { kind: "straight", line: { style: "solid", fill: "#52616D", width: 1.2 } });
-  addBulletList(slide, "next-bullets", [
-    "tokens 與 context window",
-    "reasoning 與 hallucination",
-    "為什麼 agent 會有效，也會錯",
-  ], { left: 132, top: 346, width: 460, height: 142 }, { fontSize: 24, color: "#DDE4E8", spaceAfter: 12 });
-  addDarkFooter(slide, 11);
-  addSpeakerNotes(slide, "自然收束到下一堂課。這堂建立 agent 的外層系統觀；下一堂打開 model 本身，理解 LLM 為什麼有效、為什麼會錯、context 如何影響輸出、hallucination 為何發生。");
+  addNode(slide, "model", "Model", 748, 240, 168, 70, C.indigo, C.indigoLight, 26, EN_FONT);
+  addNode(slide, "context", "Context", 560, 382, 146, 50, "#8C98A1", "#26313A", 16, EN_FONT);
+  addNode(slide, "tools", "Tools", 950, 382, 124, 50, "#8C98A1", "#26313A", 16, EN_FONT);
+  addNode(slide, "verify", "Verify", 760, 502, 132, 50, "#8C98A1", "#26313A", 16, EN_FONT);
+  addLine(slide, "l1", 706, 406, 748, 278, "#52616D", 1.2);
+  addLine(slide, "l2", 916, 278, 950, 406, "#52616D", 1.2);
+  addLine(slide, "l3", 832, 310, 826, 502, "#52616D", 1.2);
+  addText(slide, "wrap", "這堂建立 workflow 外框；下一堂打開 model 層，理解 token、context、hallucination 與 tool use。", {
+    left: 130,
+    top: 514,
+    width: 520,
+    height: 80,
+  }, { fontSize: 22, color: "#DDE4E8", lineSpacing: 1.1 });
+  addDarkFooter(slide, 18);
+  addSpeakerNotes(slide, "自然收束到 Lesson 03。這堂已經建立 agent workflow 判斷框架，下一堂再看 model 層為什麼有效、為什麼會錯。");
 }
 
 async function main() {
@@ -584,17 +754,26 @@ async function main() {
   await fs.mkdir(path.dirname(FINAL_PPTX), { recursive: true });
 
   const presentation = Presentation.create({ slideSize: { width: W, height: H } });
-  slide1(presentation);
-  slide2(presentation);
-  slide3(presentation);
-  slide4(presentation);
-  slide5(presentation);
-  slide6(presentation);
-  slide7(presentation);
-  slide8(presentation);
-  slide9(presentation);
-  slide10(presentation);
-  slide11(presentation);
+  [
+    slide1,
+    slide2,
+    slide3,
+    slide4,
+    slide5,
+    slide6,
+    slide7,
+    slide8,
+    slide9,
+    slide10,
+    slide11,
+    slide12,
+    slide13,
+    slide14,
+    slide15,
+    slide16,
+    slide17,
+    slide18,
+  ].forEach((builder) => builder(presentation));
 
   for (const [index, slide] of presentation.slides.items.entries()) {
     const stem = `slide-${String(index + 1).padStart(2, "0")}`;
