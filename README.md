@@ -1,0 +1,36 @@
+# LLM Applications on BioMedical Data
+
+Course materials for a summer workshop on AI agents and LLM-based workflows for biomedical data applications.
+
+The course is designed for undergraduate students, graduate students, and biomedical researchers who want to use AI agents responsibly in research workflows.
+
+## Completed slide decks
+
+| File | Topic | Session role |
+| --- | --- | --- |
+| `slides/course-introduction-ai-agent-biomedical-workflow.pptx` | Course introduction | Opening session; scope, expectations, and biomedical workflow framing |
+| `slides/lesson-02-ai-agents-vibe-coding-desktop-utilities.pptx` | Introduction to AI agents, vibe coding, and desktop utilities | Agent concepts, workflow thinking, and practical desktop-agent use |
+| `slides/lesson-03-llm-basics-for-agent-users.pptx` | LLM basics for agent users | Tokens, context, embeddings, hallucination, tool use, reproducibility, and task specs |
+
+## Repository layout
+
+- `slides/`: PowerPoint decks for teaching.
+- `scripts/presentations/`: Source scripts used to generate the current slide decks.
+
+The presentation scripts require the OpenAI artifact presentation runtime used during deck generation.
+
+## Current design direction
+
+The decks use a restrained teaching-workshop style:
+
+- off-white background, dark ink text, and compact explanatory layouts
+- indigo for LLM/model concepts
+- teal for tools, databases, and biomedical data
+- amber for verification and human review
+- coral for risk and failure modes
+
+The instructional emphasis is not on prompt tricks. The course frames AI agents as auditable workflows: model calls, tools, state, evidence, checks, and human review.
+
+## Status
+
+The first three slide decks have been generated and visually checked for text overflow and layout issues.
