@@ -403,19 +403,33 @@ function slide5(p) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
   addHeader(slide, "AGENT COMPONENTS", "可靠 agent 由元件與邊界組成，不只是一個模型", 7, C.teal);
-  const center = addNode(slide, "model", "Model\n推理與生成", 548, 316, 184, 82, C.indigo, C.indigoLight, 22);
-  const items = [
-    ["Goal", "成功條件", 206, 210, C.teal, C.tealLight],
-    ["Context", "任務、資料、限制", 796, 210, C.secondary, C.white],
-    ["Tools", "搜尋、讀檔、查 DB", 164, 438, C.teal, C.white],
-    ["State", "進度與中間結果", 836, 438, C.secondary, C.white],
-    ["Verification", "檢查與停止條件", 486, 526, C.amber, C.amberLight],
-  ];
-  items.forEach(([head, sub, x, y, color, fill]) => {
-    addLine(slide, `line-${head}`, 640, 358, x + 95, y + 31, C.line, 1.1);
-    addNode(slide, `node-${head}`, `${head}\n${sub}`, x, y, 190, 62, color, fill, 16, head === "Context" || head === "Tools" ? EN_FONT : FONT);
+  slide.shapes.add({
+    geometry: "roundRect",
+    name: "workflow-boundary",
+    position: { left: 124, top: 202, width: 1032, height: 426 },
+    fill: "none",
+    line: { style: "dashed", fill: C.line, width: 1.2 },
+    borderRadius: 8,
   });
-  center.bringToFront();
+  addText(slide, "boundary-label", "workflow boundary", {
+    left: 154,
+    top: 212,
+    width: 180,
+    height: 24,
+  }, { fontSize: 15, bold: true, color: C.muted, typeface: EN_FONT });
+
+  addLine(slide, "goal-to-model", 640, 280, 640, 318, C.line, 1.5);
+  addLine(slide, "context-to-model", 420, 356, 536, 356, C.line, 1.5);
+  addLine(slide, "model-to-tools", 744, 356, 860, 356, C.line, 1.5);
+  addLine(slide, "model-to-state", 640, 394, 640, 442, C.line, 1.5);
+  addLine(slide, "state-to-verify", 640, 504, 640, 542, C.line, 1.5);
+
+  addNode(slide, "node-Goal", "Goal\n成功條件", 536, 218, 208, 62, C.teal, C.tealLight, 16, EN_FONT);
+  addNode(slide, "node-Context", "Context\n任務、資料、限制", 188, 324, 232, 64, C.secondary, C.white, 16, EN_FONT);
+  addNode(slide, "model", "Model\n推理與生成", 536, 318, 208, 76, C.indigo, C.indigoLight, 22);
+  addNode(slide, "node-Tools", "Tools\n搜尋、讀檔、查 DB", 860, 324, 232, 64, C.teal, C.white, 16, EN_FONT);
+  addNode(slide, "node-State", "State\n進度與中間結果", 536, 442, 208, 62, C.secondary, C.white, 16, EN_FONT);
+  addNode(slide, "node-Verification", "Verification\n檢查與停止條件", 536, 542, 208, 62, C.amber, C.amberLight, 16, EN_FONT);
   addSpeakerNotes(slide, "這張保留原本元件圖，但更強調元件與邊界。模型只是其中一個節點，workflow 品質還取決於 context、tools、state 與 verification。");
 }
 
