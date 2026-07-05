@@ -10,7 +10,7 @@ const FINAL_PPTX = path.join(REPO_ROOT, "slides", "lesson-02-ai-agents-vibe-codi
 const W = 1280;
 const H = 720;
 const frame = { left: 76, top: 58, width: 1128, height: 594 };
-const TOTAL = 18;
+const TOTAL = 20;
 
 const C = {
   bg: "#F7F8F6",
@@ -217,10 +217,83 @@ function slide1(p) {
   addSpeakerNotes(slide, "新版 Lesson 02 的重心是判斷與拆解。學生要知道 agent 不是比較會聊天的模型，而是能和工具、檔案、資料來源、驗證規則一起工作的研究流程。");
 }
 
+function slide2CourseFrame(p) {
+  const slide = p.slides.add();
+  slide.background.fill = C.bg;
+  addHeader(slide, "WHY THIS LESSON", "這門課要訓練的是 workflow 判斷，不是工具背誦", 2, C.teal);
+  addText(slide, "lead", "AI 工具真正有用的地方，是把研究任務拆成可執行、可檢查、可交接的步驟。", {
+    left: 108,
+    top: 184,
+    width: 940,
+    height: 42,
+  }, { fontSize: 26, bold: true, color: C.ink });
+  const columns = [
+    ["不是", ["工具清單", "prompt 技巧", "看起來完整的答案"], C.coral, C.coralLight],
+    ["而是", ["任務規格", "證據與檢查", "能重跑的流程"], C.teal, C.tealLight],
+  ];
+  columns.forEach((col, i) => {
+    const x = 150 + i * 560;
+    addSurface(slide, `surface-${i}`, x, 282, 420, 250, col[3], col[2]);
+    addText(slide, `head-${i}`, col[0], { left: x + 34, top: 318, width: 160, height: 34 }, {
+      fontSize: 30,
+      bold: true,
+      color: col[2],
+    });
+    addBulletList(slide, `list-${i}`, col[1], { left: x + 82, top: 386, width: 270, height: 100 }, {
+      fontSize: 23,
+      color: C.ink,
+      spaceAfter: 10,
+    });
+  });
+  addText(slide, "bottom", "今天會把 agent 放回 biomedical research 的資料、工具、證據與風險裡。", {
+    left: 190,
+    top: 586,
+    width: 900,
+    height: 34,
+  }, { fontSize: 23, bold: true, color: C.secondary, alignment: "center" });
+  addSpeakerNotes(slide, "這張吸收原 Lesson 01 的技術定位，但避開行政課程介紹。負責老師開場後，這張把學生拉到本課的核心：工具只是入口，workflow 才是學習目標。");
+}
+
+function slide3Deliverables(p) {
+  const slide = p.slides.add();
+  slide.background.fill = C.bg;
+  addHeader(slide, "COURSE OUTCOME", "最後要留下的是可審核的 biomedical agent workflow", 3, C.amber);
+  const stack = [
+    ["task_spec.md", "任務、輸入、輸出、限制", C.indigo, C.indigoLight],
+    ["evidence_table", "claim、source、status", C.teal, C.tealLight],
+    ["tool_log", "工具輸入、輸出、錯誤", C.secondary, C.white],
+    ["check_report", "通過、失敗、needs review", C.amber, C.amberLight],
+    ["demo_notes", "限制、風險、下一步", C.coral, C.coralLight],
+  ];
+  stack.forEach((s, i) => {
+    const y = 180 + i * 74;
+    addSurface(slide, `stack-${i}`, 168, y, 380, 54, s[3], s[2]);
+    addText(slide, `stack-name-${i}`, s[0], { left: 194, top: y + 14, width: 180, height: 24 }, {
+      fontSize: 20,
+      bold: true,
+      color: s[2],
+      typeface: EN_FONT,
+    });
+    addText(slide, `stack-copy-${i}`, s[1], { left: 620, top: y + 13, width: 420, height: 28 }, {
+      fontSize: 21,
+      color: C.secondary,
+    });
+    addLine(slide, `stack-line-${i}`, 558, y + 27, 602, y + 27, C.line, 1.2);
+  });
+  addSurface(slide, "goal-box", 238, 580, 804, 54, C.white, C.line);
+  addText(slide, "goal-text", "Lesson 02 先建立外框；後面課程會逐步補上 model、tools、spec、harness 與 loop。", {
+    left: 276,
+    top: 598,
+    width: 730,
+    height: 28,
+  }, { fontSize: 20, bold: true, color: C.ink, alignment: "center" });
+  addSpeakerNotes(slide, "這張承接原 Lesson 01 的最終產出。讓學生一開始知道，這堂課不是孤立概念，而是在建立後續 spec、harness、loop、hackathon 的共同語言。");
+}
+
 function slide2(p) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
-  addHeader(slide, "RUNNING EXAMPLE", "用同一個 biomedical 任務貫穿整堂課", 2, C.teal);
+  addHeader(slide, "RUNNING EXAMPLE", "用同一個 biomedical 任務貫穿整堂課", 4, C.teal);
   addText(slide, "scenario", "任務：整理 EGFR、ALK、TP53 與肺癌治療或研究關聯的 evidence table", {
     left: 104,
     top: 190,
@@ -255,7 +328,7 @@ function slide2(p) {
 function slide3(p) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
-  addHeader(slide, "AGENT MATURITY", "Agent 不是單一型態，而是自動化程度的光譜", 3, C.indigo);
+  addHeader(slide, "AGENT MATURITY", "Agent 不是單一型態，而是自動化程度的光譜", 5, C.indigo);
   const levels = [
     ["Chatbot", "回答問題", C.secondary],
     ["Assistant", "摘要與整理", C.teal],
@@ -285,7 +358,7 @@ function slide3(p) {
 function slide4(p) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
-  addHeader(slide, "CHATBOT VS AGENT", "Chatbot 產生回答；agent 交付可檢查 artifact", 4, C.indigo);
+  addHeader(slide, "CHATBOT VS AGENT", "Chatbot 產生回答；agent 交付可檢查 artifact", 6, C.indigo);
   addSurface(slide, "left", 92, 204, 480, 312, C.white, C.line);
   addSurface(slide, "right", 708, 204, 480, 312, C.white, C.line);
   addText(slide, "left-title", "Chatbot answer", { left: 128, top: 232, width: 260, height: 36 }, {
@@ -329,7 +402,7 @@ function slide4(p) {
 function slide5(p) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
-  addHeader(slide, "AGENT COMPONENTS", "可靠 agent 由元件與邊界組成，不只是一個模型", 5, C.teal);
+  addHeader(slide, "AGENT COMPONENTS", "可靠 agent 由元件與邊界組成，不只是一個模型", 7, C.teal);
   const center = addNode(slide, "model", "Model\n推理與生成", 548, 316, 184, 82, C.indigo, C.indigoLight, 22);
   const items = [
     ["Goal", "成功條件", 206, 210, C.teal, C.tealLight],
@@ -349,7 +422,7 @@ function slide5(p) {
 function slide6(p) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
-  addHeader(slide, "AGENT LOOP", "Agent 的核心是一個會觀察、修正與停止的循環", 6, C.indigo);
+  addHeader(slide, "AGENT LOOP", "Agent 的核心是一個會觀察、修正與停止的循環", 8, C.indigo);
   addLine(slide, "goal-plan-a", 276, 322, 320, 322, C.indigo, 1.5);
   addLine(slide, "goal-plan-b", 320, 230, 320, 322, C.indigo, 1.5);
   addLine(slide, "goal-plan-c", 320, 230, 344, 230, C.indigo, 1.5);
@@ -385,7 +458,7 @@ function slide6(p) {
 function slide7(p) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
-  addHeader(slide, "WORKFLOW ARTIFACTS", "每一步都應留下之後能檢查的東西", 7, C.amber);
+  addHeader(slide, "WORKFLOW ARTIFACTS", "每一步都應留下之後能檢查的東西", 9, C.amber);
   const rows = [
     ["Goal", "task_spec.md", "任務、輸入、輸出與限制"],
     ["Search", "query log", "關鍵字、日期、來源清單"],
@@ -421,7 +494,7 @@ function slide7(p) {
 function slide8(p) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
-  addHeader(slide, "TASK SUITABILITY", "適合 agent 的任務通常能被清楚驗證", 8, C.teal);
+  addHeader(slide, "TASK SUITABILITY", "適合 agent 的任務通常能被清楚驗證", 10, C.teal);
   const good = ["輸入資料明確", "輸出格式固定", "可用外部來源檢查", "錯誤能早期發現", "不直接造成臨床行動"];
   const bad = ["目標模糊", "只有主觀判斷", "缺少可查來源", "錯了不容易發現", "涉及治療或診斷決策"];
   addSurface(slide, "good", 116, 216, 454, 322, C.tealLight, C.teal);
@@ -442,7 +515,7 @@ function slide8(p) {
 function slide9(p) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
-  addHeader(slide, "BIOMEDICAL RED LINES", "有些 biomedical 輸出只能協助整理，不能直接定案", 9, C.coral);
+  addHeader(slide, "BIOMEDICAL RED LINES", "有些 biomedical 輸出只能協助整理，不能直接定案", 11, C.coral);
   const items = [
     ["Diagnosis", "診斷或治療建議"],
     ["Dosage", "藥物劑量"],
@@ -472,7 +545,7 @@ function slide9(p) {
 function slide10(p) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
-  addHeader(slide, "VIBE CODING", "Vibe coding 是快速探索，不是把責任交給模型", 10, C.indigo);
+  addHeader(slide, "VIBE CODING", "Vibe coding 是快速探索，不是把責任交給模型", 12, C.indigo);
   const stages = [
     ["Idea", "想法與資料"],
     ["Prototype", "快速草擬"],
@@ -502,7 +575,7 @@ function slide10(p) {
 function slide11(p) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
-  addHeader(slide, "SAFE VIBE LOOP", "安全的 vibe coding 一次只推進一個小步驟", 11, C.amber);
+  addHeader(slide, "SAFE VIBE LOOP", "安全的 vibe coding 一次只推進一個小步驟", 13, C.amber);
   const steps = [
     ["1", "Specify\nsmall task"],
     ["2", "Read\nreal files"],
@@ -532,7 +605,7 @@ function slide11(p) {
 function slide12(p) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
-  addHeader(slide, "RISK MATRIX", "Vibe coding 適合低模糊、低風險且可驗證的任務", 12, C.coral);
+  addHeader(slide, "RISK MATRIX", "Vibe coding 適合低模糊、低風險且可驗證的任務", 14, C.coral);
   const x = 228;
   const y = 208;
   const w = 780;
@@ -558,7 +631,7 @@ function slide12(p) {
 function slide13(p) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
-  addHeader(slide, "DESKTOP UTILITIES", "Desktop utilities 把研究者的日常材料接進 workflow", 13, C.teal);
+  addHeader(slide, "DESKTOP UTILITIES", "Desktop utilities 把研究者的日常材料接進 workflow", 15, C.teal);
   const rows = [
     ["Browser", "PubMed / guideline / database"],
     ["Files", "PDF / CSV / Excel / notes"],
@@ -587,7 +660,7 @@ function slide13(p) {
 function slide14(p) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
-  addHeader(slide, "TOOL-USE LIFECYCLE", "每次工具呼叫都要能被觀察與記錄", 14, C.teal);
+  addHeader(slide, "TOOL-USE LIFECYCLE", "每次工具呼叫都要能被觀察與記錄", 16, C.teal);
   const steps = [
     ["Call", "structured input"],
     ["Observe", "tool output"],
@@ -618,7 +691,7 @@ function slide14(p) {
 function slide15(p) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
-  addHeader(slide, "FAILURE MODES", "Agent workflow 常見錯誤多半不是語法錯，而是流程錯", 15, C.coral);
+  addHeader(slide, "FAILURE MODES", "Agent workflow 常見錯誤多半不是語法錯，而是流程錯", 17, C.coral);
   const failures = [
     ["Wrong tool", "查錯資料庫或讀錯檔"],
     ["Context drift", "任務做一做偏掉"],
@@ -654,7 +727,7 @@ function slide15(p) {
 function slide16(p) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
-  addHeader(slide, "CLASS EXERCISE", "三個任務先判斷，再決定 agent 能做多少", 16, C.amber);
+  addHeader(slide, "CLASS EXERCISE", "三個任務先判斷，再決定 agent 能做多少", 18, C.amber);
   const cases = [
     ["A", "PubMed 搜尋結果\n整理成 evidence table", C.teal],
     ["B", "判斷某 variant\n是否 pathogenic", C.coral],
@@ -683,7 +756,7 @@ function slide16(p) {
 function slide17(p) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
-  addHeader(slide, "WORKSHEET", "把研究任務改寫成 agent-ready workflow", 17, C.amber);
+  addHeader(slide, "WORKSHEET", "把研究任務改寫成 agent-ready workflow", 19, C.amber);
   const fields = [
     ["Goal", "要回答什麼"],
     ["Inputs", "資料與版本"],
@@ -745,7 +818,7 @@ function slide18(p) {
     width: 520,
     height: 80,
   }, { fontSize: 22, color: "#DDE4E8", lineSpacing: 1.1 });
-  addDarkFooter(slide, 18);
+  addDarkFooter(slide, 20);
   addSpeakerNotes(slide, "自然收束到 Lesson 03。這堂已經建立 agent workflow 判斷框架，下一堂再看 model 層為什麼有效、為什麼會錯。");
 }
 
@@ -756,6 +829,8 @@ async function main() {
   const presentation = Presentation.create({ slideSize: { width: W, height: H } });
   [
     slide1,
+    slide2CourseFrame,
+    slide3Deliverables,
     slide2,
     slide3,
     slide4,
