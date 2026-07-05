@@ -3,18 +3,17 @@ import path from "node:path";
 import { Presentation, PresentationFile } from "@oai/artifact-tool";
 
 const SCRIPT_DIR = path.dirname(new URL(import.meta.url).pathname);
-const REPO_ROOT = path.resolve(SCRIPT_DIR, "../..");
+const REPO_ROOT = process.env.REPO_ROOT ? path.resolve(process.env.REPO_ROOT) : path.resolve(SCRIPT_DIR, "../..");
 const OUT_DIR = path.join(REPO_ROOT, "previews", "lesson-03-llm-basics-for-agent-users");
 const FINAL_PPTX = path.join(REPO_ROOT, "slides", "lesson-03-llm-basics-for-agent-users.pptx");
 
 const W = 1280;
 const H = 720;
+const TOTAL = 35;
 const frame = { left: 76, top: 58, width: 1128, height: 594 };
-const TOTAL = 15;
 
 const C = {
   bg: "#F7F8F6",
-  grayBg: "#EEF1F2",
   ink: "#17202A",
   secondary: "#5C6670",
   muted: "#8C98A1",
@@ -48,7 +47,7 @@ function addText(slide, name, text, position, style = {}) {
   });
   shape.text = text;
   shape.text.style = {
-    fontSize: style.fontSize ?? 24,
+    fontSize: style.fontSize ?? 22,
     bold: style.bold ?? false,
     color: style.color ?? C.ink,
     alignment: style.alignment ?? "left",
@@ -61,7 +60,7 @@ function addText(slide, name, text, position, style = {}) {
 }
 
 function addEyebrow(slide, text, color = C.indigo) {
-  return addText(slide, "eyebrow", text, { left: frame.left, top: frame.top, width: 620, height: 30 }, {
+  addText(slide, "eyebrow", text, { left: frame.left, top: frame.top, width: 780, height: 30 }, {
     fontSize: 15,
     bold: true,
     color,
@@ -69,67 +68,37 @@ function addEyebrow(slide, text, color = C.indigo) {
   });
 }
 
-function addTitle(slide, text, y = 96, size = 36, width = 1040) {
-  return addText(slide, "title", text, { left: frame.left, top: y, width, height: 96 }, {
+function addTitle(slide, text, y = 96, size = 36, width = 1060) {
+  addText(slide, "title", text, { left: frame.left, top: y, width, height: 96 }, {
     fontSize: size,
     bold: true,
     color: C.ink,
-    lineSpacing: 0.96,
+    lineSpacing: 0.98,
   });
 }
 
-function addFooter(slide, n) {
-  addText(slide, "footer", `LLM basics for agent users  |  ${n}/${TOTAL}`, {
+function addFooter(slide, n, dark = false) {
+  addText(slide, dark ? "footer-dark" : "footer", `LLM basics for agent users  |  ${n}/${TOTAL}`, {
     left: frame.left,
     top: 668,
     width: 420,
     height: 22,
-  }, { fontSize: 12, color: C.secondary, typeface: EN_FONT });
+  }, { fontSize: 12, color: dark ? "#B7C0C7" : C.secondary, typeface: EN_FONT });
 }
 
-function addDarkFooter(slide, n) {
-  addText(slide, "footer-dark", `LLM basics for agent users  |  ${n}/${TOTAL}`, {
-    left: frame.left,
-    top: 668,
-    width: 420,
-    height: 22,
-  }, { fontSize: 12, color: "#B7C0C7", typeface: EN_FONT });
-}
-
-function addBulletList(slide, name, items, position, options = {}) {
-  const shape = slide.shapes.add({
-    geometry: "textbox",
-    name,
-    position,
-    fill: "none",
-    line: { style: "solid", fill: "none", width: 0 },
-  });
-  shape.text.set(items.map((item) => ({
-    bulletCharacter: "•",
-    marginLeft: options.marginLeft ?? 24,
-    indent: options.indent ?? -12,
-    spaceAfter: options.spaceAfter ?? 9,
-    runs: Array.isArray(item) ? item : [item],
-  })));
-  shape.text.style = {
-    fontSize: options.fontSize ?? 24,
-    color: options.color ?? C.ink,
-    lineSpacing: options.lineSpacing ?? 1.08,
-    typeface: options.typeface ?? FONT,
-    insets: { top: 0, right: 0, bottom: 0, left: 0 },
-  };
-  return shape;
-}
-
-function addNode(slide, name, label, x, y, w, h, color, fill = C.white, fontSize = 18, typeface = FONT) {
-  const node = slide.shapes.add({
+function addSurface(slide, name, x, y, w, h, fill = C.white, line = C.line) {
+  return slide.shapes.add({
     geometry: "roundRect",
     name,
     position: { left: x, top: y, width: w, height: h },
     fill,
-    line: { style: "solid", fill: color, width: 1.4 },
+    line: { style: "solid", fill: line, width: 1 },
     borderRadius: 8,
   });
+}
+
+function addNode(slide, name, label, x, y, w, h, color, fill = C.white, fontSize = 18, typeface = FONT) {
+  const node = addSurface(slide, name, x, y, w, h, fill, color);
   node.text = label;
   node.text.style = {
     fontSize,
@@ -144,17 +113,6 @@ function addNode(slide, name, label, x, y, w, h, color, fill = C.white, fontSize
   return node;
 }
 
-function addSurface(slide, name, x, y, w, h, fill = C.white, line = C.line) {
-  return slide.shapes.add({
-    geometry: "roundRect",
-    name,
-    position: { left: x, top: y, width: w, height: h },
-    fill,
-    line: { style: "solid", fill: line, width: 1 },
-    borderRadius: 8,
-  });
-}
-
 function addLine(slide, name, x1, y1, x2, y2, color, width = 1.5, dashed = false) {
   return slide.shapes.add({
     geometry: "line",
@@ -165,9 +123,9 @@ function addLine(slide, name, x1, y1, x2, y2, color, width = 1.5, dashed = false
   });
 }
 
-function connect(slide, from, to, color = C.secondary, dashed = false, kind = "straight") {
+function connect(slide, from, to, color = C.secondary, dashed = false) {
   return slide.shapes.connect(from, to, {
-    kind,
+    kind: "straight",
     fromSide: "right",
     toSide: "left",
     line: { style: dashed ? "dashed" : "solid", fill: color, width: 1.6 },
@@ -175,434 +133,514 @@ function connect(slide, from, to, color = C.secondary, dashed = false, kind = "s
   });
 }
 
-function vConnect(slide, from, to, color = C.secondary, dashed = false) {
-  return slide.shapes.connect(from, to, {
-    kind: "straight",
-    fromSide: "bottom",
-    toSide: "top",
-    line: { style: dashed ? "dashed" : "solid", fill: color, width: 1.5 },
-    tail: { type: "arrow", width: "sm", length: "sm" },
+function addBulletList(slide, name, items, position, options = {}) {
+  const shape = slide.shapes.add({
+    geometry: "textbox",
+    name,
+    position,
+    fill: "none",
+    line: { style: "solid", fill: "none", width: 0 },
   });
+  shape.text.set(items.map((item) => ({
+    bulletCharacter: "•",
+    marginLeft: options.marginLeft ?? 24,
+    indent: options.indent ?? -12,
+    spaceAfter: options.spaceAfter ?? 8,
+    runs: [item],
+  })));
+  shape.text.style = {
+    fontSize: options.fontSize ?? 23,
+    color: options.color ?? C.ink,
+    lineSpacing: options.lineSpacing ?? 1.08,
+    typeface: options.typeface ?? FONT,
+    insets: { top: 0, right: 0, bottom: 0, left: 0 },
+  };
+  return shape;
 }
 
-function addSpeakerNotes(slide, notes) {
-  slide.speakerNotes.textFrame.setText(notes);
+function notes(slide, text) {
+  slide.speakerNotes.textFrame.setText(text);
   slide.speakerNotes.setVisible(true);
 }
 
-function addMiniModelBreadcrumb(slide, n) {
-  addText(slide, "breadcrumb", "agent loop: model layer", {
-    left: 980,
-    top: 58,
-    width: 210,
-    height: 24,
-  }, { fontSize: 13, bold: true, color: C.muted, alignment: "right", typeface: EN_FONT });
-  const model = addNode(slide, "crumb-model", "Model", 1072, 88, 82, 30, C.indigo, C.indigoLight, 13, EN_FONT);
-  const tools = addNode(slide, "crumb-tools", "Tools", 1164, 88, 62, 30, C.muted, C.white, 12, EN_FONT);
-  connect(slide, model, tools, C.line);
-  if (n) addFooter(slide, n);
+function baseSlide(p, n, eyebrow, title, color = C.indigo) {
+  const slide = p.slides.add();
+  slide.background.fill = C.bg;
+  addEyebrow(slide, eyebrow, color);
+  addTitle(slide, title);
+  addFooter(slide, n);
+  return slide;
 }
 
-function slide1(p) {
+function titleSlide(p, n) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
   addEyebrow(slide, "LESSON 03", C.indigo);
-  addTitle(slide, "今天放大看 agent loop 裡的 model 層", 112, 36, 700);
-  addBulletList(slide, "questions", [
-    "LLM 到底在做什麼？",
-    "為什麼它有時很強、有時很危險？",
-    "如何把 LLM 放進可檢查的 biomedical workflow？",
-  ], { left: 92, top: 270, width: 520, height: 158 }, { fontSize: 25, spaceAfter: 14 });
-
-  const goal = addNode(slide, "goal", "Goal", 720, 224, 100, 44, C.muted, C.white, 15, EN_FONT);
-  const model = addNode(slide, "model", "Model\nLLM call", 884, 198, 156, 70, C.indigo, C.indigoLight, 20, EN_FONT);
-  const tools = addNode(slide, "tools", "Tools", 1100, 224, 100, 44, C.muted, C.white, 15, EN_FONT);
-  const verify = addNode(slide, "verify", "Verify", 886, 384, 150, 54, C.amber, C.amberLight, 18, EN_FONT);
-  connect(slide, goal, model, C.line);
-  connect(slide, model, tools, C.line);
-  vConnect(slide, model, verify, C.amber, true);
-  addText(slide, "zoom", "Prompt, context, retrieved evidence, temperature, hallucination\n都會影響這一層的輸出。", {
-    left: 704,
-    top: 498,
-    width: 500,
+  addText(slide, "title", "LLM basics for agent users", {
+    left: 78,
+    top: 116,
+    width: 820,
     height: 70,
-  }, { fontSize: 22, color: C.secondary, alignment: "center" });
-  addFooter(slide, 1);
-  addSpeakerNotes(slide, "設定本堂課定位：不是模型架構課，也不是 prompt 技巧課，而是幫 agent 使用者理解 LLM 的行為邊界，知道什麼能信、什麼要查、什麼要留下紀錄。");
-}
-
-function slide2(p) {
-  const slide = p.slides.add();
-  slide.background.fill = C.bg;
-  addEyebrow(slide, "LLM IS NOT A DATABASE", C.indigo);
-  addTitle(slide, "LLM 不是資料庫；它產生最像答案的文字");
-  addSurface(slide, "db-surface", 110, 230, 440, 300, C.white, C.line);
-  addText(slide, "db-title", "Database", { left: 150, top: 260, width: 180, height: 38 }, { fontSize: 28, bold: true, color: C.teal, typeface: EN_FONT });
-  addNode(slide, "query", "query", 160, 360, 110, 48, C.teal, C.tealLight, 18, EN_FONT);
-  addNode(slide, "record", "record", 380, 360, 110, 48, C.teal, C.white, 18, EN_FONT);
-  addLine(slide, "db-line", 270, 384, 380, 384, C.teal, 1.6);
-  addText(slide, "db-copy", "查表：有明確來源、版本與結果。", { left: 150, top: 454, width: 320, height: 32 }, { fontSize: 21, color: C.secondary });
-
-  addSurface(slide, "llm-surface", 730, 230, 440, 300, C.white, C.line);
-  addText(slide, "llm-title", "LLM", { left: 770, top: 260, width: 180, height: 38 }, { fontSize: 28, bold: true, color: C.indigo, typeface: EN_FONT });
-  addNode(slide, "context", "context", 760, 348, 126, 48, C.indigo, C.indigoLight, 18, EN_FONT);
-  addNode(slide, "token", "next token", 984, 348, 136, 48, C.indigo, C.white, 18, EN_FONT);
-  addLine(slide, "llm-line", 886, 372, 984, 372, C.indigo, 1.6);
-  addText(slide, "llm-copy", "生成：依上下文預測下一段文字。", { left: 770, top: 454, width: 340, height: 32 }, { fontSize: 21, color: C.secondary });
-  addFooter(slide, 2);
-  addSpeakerNotes(slide, "用直觀方式說明：LLM 是根據上下文預測下一段最可能的文字。它可能記得常見知識，但不是穩定、可查詢、可保證更新的 biomedical database。");
-}
-
-function slide3(p) {
-  const slide = p.slides.add();
-  slide.background.fill = C.bg;
-  addEyebrow(slide, "NEXT-TOKEN PREDICTION", C.indigo);
-  addTitle(slide, "Next-token prediction 是判斷接下來最像什麼");
-  const tokens = ["TP53", "is", "associated", "with"];
-  tokens.forEach((t, i) => addNode(slide, `tok-${i}`, t, 128 + i * 140, 288, 112, 46, i === 0 ? C.teal : C.secondary, C.white, 17, EN_FONT));
-  addText(slide, "ellipsis", "...", { left: 664, top: 286, width: 50, height: 40 }, { fontSize: 28, bold: true, color: C.secondary, typeface: EN_FONT });
-  const probs = [
-    ["cancer", "42%", C.indigo],
-    ["mutation", "21%", C.teal],
-    ["risk", "13%", C.amber],
-  ];
-  probs.forEach((p2, i) => {
-    const y = 218 + i * 82;
-    addNode(slide, `prob-${i}`, `${p2[0]}\n${p2[1]}`, 820, y, 148, 58, p2[2], p2[2] === C.amber ? C.amberLight : C.white, 18, EN_FONT);
-    addLine(slide, `fan-${i}`, 704, 310, 820, y + 29, p2[2], 1.4);
-  });
-  addNode(slide, "chosen", "chosen next token", 1026, 300, 168, 58, C.indigo, C.indigoLight, 17, EN_FONT);
-  addLine(slide, "chosen-line", 968, 329, 1026, 329, C.indigo, 1.6);
-  addText(slide, "note", "流暢 ≠ 查證過；機率最高也不一定是真實。", { left: 258, top: 530, width: 760, height: 40 }, { fontSize: 27, bold: true, color: C.coral, alignment: "center" });
-  addFooter(slide, 3);
-  addSpeakerNotes(slide, "這張只建立直覺，不講模型細節。LLM 的輸出是根據上下文一步步產生的，因此它可能非常流暢，但流暢不代表有查過資料來源。");
-}
-
-function slide4(p) {
-  const slide = p.slides.add();
-  slide.background.fill = C.bg;
-  addEyebrow(slide, "TOKENS AND CONTEXT", C.teal);
-  addTitle(slide, "Token 不是字；context 是模型當下看得到的材料");
-  addText(slide, "prompt", "Prompt example: summarize EGFR exon 19 deletion evidence", {
-    left: 112,
-    top: 206,
-    width: 760,
-    height: 34,
-  }, { fontSize: 22, color: C.secondary, typeface: EN_FONT });
-  const chips = ["summarize", "EGFR", "exon", "19", "deletion", "evidence"];
-  chips.forEach((c, i) => addNode(slide, `chip-${i}`, c, 118 + i * 164, 292, 136, 44, i === 1 ? C.teal : C.secondary, C.white, 17, EN_FONT));
-  addSurface(slide, "window", 184, 428, 898, 94, C.indigoLight, C.indigo);
-  addText(slide, "window-text", "context window = prompt + selected excerpts + tables + tool outputs", {
-    left: 210,
-    top: 462,
-    width: 846,
-    height: 34,
-  }, { fontSize: 24, bold: true, color: C.indigo, alignment: "center", typeface: EN_FONT });
-  addText(slide, "note", "長文件需要選擇、壓縮、切段；沒放進 context 的內容不能可靠引用。", {
-    left: 188,
-    top: 584,
+  }, { fontSize: 46, bold: true, color: C.ink, typeface: EN_FONT });
+  addText(slide, "subtitle", "從 token、context、tool use 到 biomedical hallucination 驗證", {
+    left: 82,
+    top: 204,
     width: 880,
-    height: 34,
-  }, { fontSize: 23, bold: true, color: C.secondary, alignment: "center" });
-  addFooter(slide, 4);
-  addSpeakerNotes(slide, "解釋 token 對使用者的實際影響：context 放不下所有 PDF、表格、程式碼。agent workflow 必須設計放什麼進去，以及怎麼檢查沒放進去的部分。");
+    height: 44,
+  }, { fontSize: 27, bold: true, color: C.secondary });
+  addBulletList(slide, "goals", [
+    "看懂 LLM 為什麼會這樣回答",
+    "知道 biomedical 任務何時要查、何時要停",
+    "把模糊 prompt 改成可驗證 task spec",
+  ], { left: 96, top: 352, width: 560, height: 150 }, { fontSize: 25, spaceAfter: 14 });
+  const llm = addNode(slide, "llm", "LLM", 770, 304, 120, 58, C.indigo, C.indigoLight, 23, EN_FONT);
+  const tools = addNode(slide, "tools", "Tools", 1010, 304, 120, 58, C.teal, C.tealLight, 21, EN_FONT);
+  const verify = addNode(slide, "verify", "Verify", 890, 454, 130, 58, C.amber, C.amberLight, 21, EN_FONT);
+  connect(slide, llm, tools, C.teal);
+  addLine(slide, "verify-a", 950, 362, 950, 454, C.amber, 1.6, true);
+  addFooter(slide, n);
+  notes(slide, "設定這堂課的定位：不是模型數學課，也不是單純 prompt tips，而是讓學生能安全使用 LLM 和 agent 做 biomedical 任務。");
 }
 
-function slide5(p) {
-  const slide = p.slides.add();
-  slide.background.fill = C.bg;
-  addEyebrow(slide, "EMBEDDINGS", C.teal);
-  addTitle(slide, "Embedding 找語意相近內容，但相近不等於正確");
-  addSurface(slide, "map", 176, 190, 880, 400, C.white, C.line);
-  const terms = [
-    ["EGFR", 300, 280, C.teal],
-    ["ALK", 374, 338, C.teal],
-    ["lung cancer", 470, 260, C.teal],
-    ["osimertinib", 662, 250, C.indigo],
-    ["TKI", 760, 318, C.indigo],
-    ["variant", 404, 476, C.amber],
-    ["HGVS", 520, 510, C.amber],
-    ["citation", 778, 480, C.secondary],
+function agendaSlide(p, n) {
+  const slide = baseSlide(p, n, "90-MINUTE MAP", "35 張投影片，分成 5 個學習段落");
+  const rows = [
+    ["0-10", "先拆錯誤直覺", "LLM 很會講話，但不是資料庫。"],
+    ["10-30", "理解模型輸入輸出", "token、next-token、context window。"],
+    ["30-48", "理解 agent 裡的 LLM", "system prompt、tool use、memory。"],
+    ["48-70", "辨識 biomedical 風險", "hallucination、citation、gene、版本、臨床推論。"],
+    ["70-90", "練習可驗證任務", "task spec、schema、checklist、human review。"],
   ];
-  terms.forEach((t) => addNode(slide, `term-${t[0]}`, t[0], t[1], t[2], 128, 42, t[3], t[3] === C.amber ? C.amberLight : C.white, 16, EN_FONT));
-  addLine(slide, "axis-x", 236, 548, 990, 548, C.line, 1);
-  addLine(slide, "axis-y", 236, 226, 236, 548, C.line, 1);
-  addText(slide, "map-label", "semantic proximity", { left: 786, top: 552, width: 200, height: 24 }, { fontSize: 15, color: C.secondary, typeface: EN_FONT });
-  addText(slide, "note", "Embedding 支援 retrieval、clustering、deduplication；retrieval 後仍要查來源。", {
+  rows.forEach((r, i) => {
+    const y = 184 + i * 78;
+    addNode(slide, `time-${i}`, `${r[0]} min`, 110, y, 126, 48, i < 2 ? C.indigo : i < 4 ? C.teal : C.amber, i < 2 ? C.indigoLight : i < 4 ? C.tealLight : C.amberLight, 15, EN_FONT);
+    addText(slide, `role-${i}`, r[1], { left: 284, top: y + 4, width: 286, height: 28 }, { fontSize: 22, bold: true });
+    addText(slide, `copy-${i}`, r[2], { left: 610, top: y + 7, width: 500, height: 28 }, { fontSize: 19, color: C.secondary });
+    if (i < rows.length - 1) addLine(slide, `step-line-${i}`, 173, y + 48, 173, y + 78, C.line);
+  });
+  notes(slide, "這張讓學生知道 90 分鐘的路線。重點是學會判斷與驗證，不是背術語。");
+}
+
+function thesisSlide(p, n) {
+  const slide = baseSlide(p, n, "ONE SENTENCE", "這堂課只要先記住一句話");
+  addSurface(slide, "quote-box", 142, 228, 996, 190, C.indigoLight, C.indigo);
+  addText(slide, "quote", "LLM 很會產生文字；\nbiomedical workflow 要求可驗證。", {
+    left: 190,
+    top: 268,
+    width: 900,
+    height: 110,
+  }, { fontSize: 38, bold: true, color: C.indigo, alignment: "center", lineSpacing: 1.14 });
+  addText(slide, "sub", "所以我們不是問「它答得像不像」，而是問「它能不能被查」。", {
+    left: 224,
+    top: 500,
+    width: 820,
+    height: 40,
+  }, { fontSize: 26, bold: true, color: C.coral, alignment: "center" });
+  notes(slide, "用一句話建立整堂課的標準。之後所有概念都回到可驗證性。");
+}
+
+function compareSlide(p, n, eyebrow, title, left, right, note, color = C.indigo) {
+  const slide = baseSlide(p, n, eyebrow, title, color);
+  addSurface(slide, "left-box", 100, 220, 480, 272, left.fill ?? C.coralLight, left.color ?? C.coral);
+  addText(slide, "left-title", left.title, { left: 140, top: 254, width: 360, height: 32 }, {
+    fontSize: 26,
+    bold: true,
+    color: left.color ?? C.coral,
+    typeface: left.typeface ?? FONT,
+  });
+  addBulletList(slide, "left-list", left.items, { left: 142, top: 326, width: 350, height: 118 }, {
+    fontSize: 22,
+    color: C.ink,
+    spaceAfter: 9,
+    typeface: left.typeface ?? FONT,
+  });
+  addSurface(slide, "right-box", 700, 220, 480, 272, right.fill ?? C.tealLight, right.color ?? C.teal);
+  addText(slide, "right-title", right.title, { left: 740, top: 254, width: 360, height: 32 }, {
+    fontSize: 26,
+    bold: true,
+    color: right.color ?? C.teal,
+    typeface: right.typeface ?? FONT,
+  });
+  addBulletList(slide, "right-list", right.items, { left: 742, top: 326, width: 350, height: 118 }, {
+    fontSize: 22,
+    color: C.ink,
+    spaceAfter: 9,
+    typeface: right.typeface ?? FONT,
+  });
+  addText(slide, "note", note, { left: 170, top: 586, width: 940, height: 36 }, {
+    fontSize: 24,
+    bold: true,
+    color: C.secondary,
+    alignment: "center",
+  });
+  notes(slide, note);
+}
+
+function conceptSlide(p, n, eyebrow, title, bullets, callout, color = C.indigo) {
+  const slide = baseSlide(p, n, eyebrow, title, color);
+  addBulletList(slide, "bullets", bullets, { left: 106, top: 214, width: 560, height: 250 }, {
+    fontSize: 24,
+    spaceAfter: 13,
+  });
+  addSurface(slide, "callout", 760, 238, 360, 220, color === C.coral ? C.coralLight : color === C.teal ? C.tealLight : C.indigoLight, color);
+  addText(slide, "callout-text", callout, { left: 802, top: 292, width: 276, height: 110 }, {
+    fontSize: 25,
+    bold: true,
+    color,
+    alignment: "center",
+    verticalAlignment: "middle",
+    lineSpacing: 1.14,
+  });
+  notes(slide, `${title}。教學重點：${callout}`);
+}
+
+function tokenExampleSlide(p, n) {
+  const slide = baseSlide(p, n, "TOKENIZATION EXAMPLE", "生醫文字常常不是照你想的方式被切開");
+  addText(slide, "prompt", "Example input", { left: 118, top: 198, width: 280, height: 30 }, { fontSize: 20, bold: true, color: C.secondary, typeface: EN_FONT });
+  addSurface(slide, "input", 118, 236, 1040, 64, C.white, C.line);
+  addText(slide, "input-text", "EGFR exon 19 deletion, TP53 p.R175H, 非小細胞肺癌", {
     left: 146,
-    top: 622,
-    width: 940,
+    top: 254,
+    width: 960,
+    height: 30,
+  }, { fontSize: 24, bold: true, color: C.ink, typeface: EN_FONT });
+  const tokens = ["EGFR", "exon", "19", "deletion", "TP53", "p.", "R175H", "非小細胞", "肺癌"];
+  tokens.forEach((t, i) => {
+    const x = 124 + (i % 5) * 206;
+    const y = 374 + Math.floor(i / 5) * 78;
+    addNode(slide, `tok-${i}`, t, x, y, 168, 44, i < 7 ? C.indigo : C.teal, C.white, 17, i < 7 ? EN_FONT : FONT);
+  });
+  addText(slide, "note", "重點不是背 tokenization，而是知道模型看到的文字單位和人類直覺不同。", {
+    left: 158,
+    top: 588,
+    width: 960,
     height: 34,
   }, { fontSize: 23, bold: true, color: C.secondary, alignment: "center" });
-  addFooter(slide, 5);
-  addSpeakerNotes(slide, "說明 RAG 背後直覺：embedding 幫我們找到可能相關的段落，但不能保證段落就是答案，也不能保證模型正確引用。retrieval 後仍需要來源檢查。");
+  notes(slide, "用 gene、variant、中文疾病名稱做 tokenization 直覺。提醒學生：罕見符號、座標、變異名稱可能讓模型更容易出錯。");
 }
 
-function slide6(p) {
-  const slide = p.slides.add();
-  slide.background.fill = C.bg;
-  addEyebrow(slide, "PROMPT PACKET", C.indigo);
-  addTitle(slide, "System prompt、task、context、evidence 要分清楚");
-  const layers = [
-    ["System", "role / rules / boundaries", C.indigo, C.indigoLight],
-    ["User task", "this request", C.teal, C.white],
-    ["Context", "working material", C.secondary, C.white],
-    ["Retrieved content", "external evidence", C.teal, C.tealLight],
-    ["Tool result", "structured output", C.amber, C.amberLight],
-  ];
-  layers.forEach((l, i) => {
-    const y = 190 + i * 74;
-    addNode(slide, `layer-${i}`, l[0], 230, y, 210, 54, l[2], l[3], 20, EN_FONT);
-    addText(slide, `layer-copy-${i}`, l[1], { left: 480, top: y + 14, width: 440, height: 26 }, {
-      fontSize: 20,
-      color: C.secondary,
+function flowSlide(p, n, eyebrow, title, nodes, footerNote, color = C.indigo) {
+  const slide = baseSlide(p, n, eyebrow, title, color);
+  const x0 = 112;
+  nodes.forEach((node, i) => {
+    const x = x0 + i * 250;
+    const shape = addNode(slide, `flow-${i}`, node.label, x, 315, node.w ?? 160, node.h ?? 62, node.color ?? color, node.fill ?? C.white, node.fontSize ?? 18, node.typeface ?? FONT);
+    if (i > 0) {
+      addLine(slide, `flow-line-${i}`, x - 88, 346, x, 346, nodes[i - 1].color ?? C.line, 1.7);
+    }
+    if (node.caption) {
+      addText(slide, `caption-${i}`, node.caption, { left: x - 18, top: 404, width: 200, height: 46 }, {
+        fontSize: 17,
+        color: C.secondary,
+        alignment: "center",
+        lineSpacing: 1.06,
+      });
+    }
+    return shape;
+  });
+  addText(slide, "note", footerNote, { left: 160, top: 566, width: 960, height: 42 }, {
+    fontSize: 24,
+    bold: true,
+    color: C.secondary,
+    alignment: "center",
+    lineSpacing: 1.08,
+  });
+  notes(slide, footerNote);
+}
+
+function tableSlide(p, n, eyebrow, title, columns, rows, color = C.teal) {
+  const slide = baseSlide(p, n, eyebrow, title, color);
+  const left = 92;
+  const top = 198;
+  const colW = [220, 394, 384];
+  columns.forEach((c, i) => {
+    const x = left + colW.slice(0, i).reduce((a, b) => a + b, 0);
+    addText(slide, `head-${i}`, c, { left: x + 12, top, width: colW[i] - 24, height: 28 }, {
+      fontSize: 18,
+      bold: true,
+      color: i === 1 ? C.coral : color,
       typeface: EN_FONT,
     });
   });
-  addText(slide, "debug", "Debug agent 行為時，先問：規則、任務、材料、證據哪一層錯了？", {
-    left: 176,
-    top: 594,
-    width: 900,
-    height: 34,
-  }, { fontSize: 23, bold: true, color: C.ink, alignment: "center" });
-  addFooter(slide, 6);
-  addSpeakerNotes(slide, "建立詞彙精準度。未來設計 agent 時，要能分清楚規則、任務、材料、證據來源。這也是 debug agent 行為的基礎。");
-}
-
-function slide7(p) {
-  const slide = p.slides.add();
-  slide.background.fill = C.bg;
-  addEyebrow(slide, "CONTEXT WINDOW", C.teal);
-  addTitle(slide, "Context window 是有限工作桌面，不是無限記憶");
-  addSurface(slide, "desk", 220, 190, 760, 380, C.white, C.indigo);
-  addText(slide, "desk-title", "current model workspace", { left: 242, top: 214, width: 320, height: 28 }, { fontSize: 18, bold: true, color: C.indigo, typeface: EN_FONT });
-  addNode(slide, "prompt", "prompt", 270, 294, 118, 44, C.indigo, C.indigoLight, 16, EN_FONT);
-  addNode(slide, "paper", "paper excerpt", 432, 294, 160, 44, C.teal, C.tealLight, 16, EN_FONT);
-  addNode(slide, "table", "table rows", 636, 294, 132, 44, C.secondary, C.white, 16, EN_FONT);
-  addNode(slide, "tool", "tool output", 812, 294, 132, 44, C.amber, C.amberLight, 16, EN_FONT);
-  addNode(slide, "source", "source IDs", 418, 424, 150, 44, C.teal, C.white, 16, EN_FONT);
-  addNode(slide, "schema", "output schema", 626, 424, 170, 44, C.indigo, C.white, 16, EN_FONT);
-  addText(slide, "outside", "full PDF\nraw dataset\nold chat\nunloaded files", { left: 1006, top: 250, width: 120, height: 120 }, { fontSize: 18, color: C.muted, alignment: "center", typeface: EN_FONT });
-  addLine(slide, "outside-line", 970, 310, 1000, 310, C.line, 1, true);
-  addText(slide, "note", "可重現的 workflow 要保存 prompt、context、retrieved files、tool outputs。", {
-    left: 170,
-    top: 610,
-    width: 900,
-    height: 34,
-  }, { fontSize: 23, bold: true, color: C.secondary, alignment: "center" });
-  addFooter(slide, 7);
-  addSpeakerNotes(slide, "同一個問題，如果 context 不同，答案可能不同。可重現的 agent workflow 必須保存 prompt、context、retrieved files、tool outputs。");
-}
-
-function slide8(p) {
-  const slide = p.slides.add();
-  slide.background.fill = C.bg;
-  addEyebrow(slide, "HALLUCINATION", C.coral);
-  addTitle(slide, "Hallucination 常是合理語氣加上不可靠內容");
-  const headers = ["Failure pattern", "Why it happens", "How to check"];
-  headers.forEach((h, i) => addText(slide, `head-${i}`, h, { left: 130 + i * 330, top: 202, width: 260, height: 30 }, { fontSize: 18, bold: true, color: i === 0 ? C.coral : C.secondary, alignment: "center", typeface: EN_FONT }));
-  const rows = [
-    ["Fabricated citation", "text looks plausible", "open PMID / DOI"],
-    ["Merged concepts", "similar patterns mix", "check source terms"],
-    ["Unsupported claim", "answer pressure", "require evidence field"],
-  ];
   rows.forEach((r, row) => {
-    const y = 258 + row * 92;
-    r.forEach((cell, col) => addNode(slide, `r${row}c${col}`, cell, 112 + col * 330, y, 288, 58, col === 0 ? C.coral : C.secondary, col === 0 ? C.coralLight : C.white, 17, EN_FONT));
+    const y = top + 50 + row * 66;
+    r.forEach((cell, col) => {
+      const x = left + colW.slice(0, col).reduce((a, b) => a + b, 0);
+      addText(slide, `r${row}c${col}`, cell, { left: x + 12, top: y + 8, width: colW[col] - 24, height: 42 }, {
+        fontSize: col === 0 ? 18 : 17,
+        bold: col === 0,
+        color: col === 1 ? C.coral : col === 2 ? C.teal : C.indigo,
+        lineSpacing: 1.06,
+        typeface: /[A-Za-z]/.test(cell) ? EN_FONT : FONT,
+      });
+    });
+    addLine(slide, `rowline-${row}`, left, y + 54, 1090, y + 54, C.line, 1);
   });
-  addText(slide, "note", "語言流暢度不是 evidence；缺證據時要讓模型說不知道。", {
-    left: 190,
-    top: 584,
-    width: 880,
-    height: 34,
-  }, { fontSize: 24, bold: true, color: C.coral, alignment: "center" });
-  addFooter(slide, 8);
-  addSpeakerNotes(slide, "避免把 hallucination 講成單純模型笨。它是生成式模型的自然風險：語言流暢度不等於事實正確性。尤其生醫領域中，錯誤可能很像真的。");
+  addFooter(slide, n);
+  notes(slide, `${title}。逐列說明風險與檢查方式。`);
 }
 
-function slide9(p) {
-  const slide = p.slides.add();
-  slide.background.fill = C.bg;
-  addEyebrow(slide, "BIOMEDICAL FAILURE MODES", C.coral);
-  addTitle(slide, "Biomedical 錯誤要用具體欄位來檢查");
-  const rows = [
-    ["Citation", "PMID / DOI 編造", "PubMed / DOI lookup"],
-    ["Gene symbol", "舊名、物種混淆", "HGNC / organism check"],
-    ["Variant", "HGVS、座標版本錯", "ClinVar / genome build"],
-    ["Drug claim", "適應症與證據等級混淆", "guideline / label"],
-    ["Clinical claim", "過度推論", "human review"],
-  ];
-  addText(slide, "h1", "Field", { left: 120, top: 200, width: 180, height: 26 }, { fontSize: 18, bold: true, color: C.secondary, typeface: EN_FONT });
-  addText(slide, "h2", "Risk", { left: 394, top: 200, width: 260, height: 26 }, { fontSize: 18, bold: true, color: C.coral, typeface: EN_FONT });
-  addText(slide, "h3", "Check", { left: 762, top: 200, width: 260, height: 26 }, { fontSize: 18, bold: true, color: C.teal, typeface: EN_FONT });
-  rows.forEach((r, i) => {
-    const y = 244 + i * 66;
-    addText(slide, `field-${i}`, r[0], { left: 120, top: y + 10, width: 190, height: 26 }, { fontSize: 19, bold: true, color: C.indigo, typeface: EN_FONT });
-    addText(slide, `risk-${i}`, r[1], { left: 392, top: y + 10, width: 300, height: 26 }, { fontSize: 19, color: C.coral });
-    addText(slide, `check-${i}`, r[2], { left: 762, top: y + 10, width: 320, height: 26 }, { fontSize: 19, color: C.teal, typeface: EN_FONT });
-    addLine(slide, `rowline-${i}`, 112, y + 50, 1120, y + 50, C.line, 1);
+function exerciseSlide(p, n, title, prompt, tasks, timing, color = C.coral) {
+  const slide = baseSlide(p, n, "CLASS EXERCISE", title, color);
+  addSurface(slide, "prompt-box", 96, 198, 500, 294, C.coralLight, C.coral);
+  addText(slide, "prompt-label", "給學生的壞 prompt", { left: 132, top: 232, width: 260, height: 28 }, {
+    fontSize: 22,
+    bold: true,
+    color: C.coral,
   });
-  addFooter(slide, 9);
-  addSpeakerNotes(slide, "給具體風險邊界。生醫 workflow 中，citation、gene symbol、variant、drug、clinical claim 等欄位不能只靠語言模型判斷，必須用外部來源檢查。");
-}
-
-function slide10(p) {
-  const slide = p.slides.add();
-  slide.background.fill = C.bg;
-  addEyebrow(slide, "REASONING LIMITS", C.indigo);
-  addTitle(slide, "Reasoning 很有用，但不能保證事實正確");
-  const steps = [
-    ["Summarize", C.teal],
-    ["Compare", C.teal],
-    ["Plan", C.indigo],
-    ["Infer", C.indigo],
-  ];
-  steps.forEach((s, i) => {
-    const x = 150 + i * 205;
-    const y = 430 - i * 58;
-    addNode(slide, `step-${i}`, s[0], x, y, 150, 52, s[1], C.white, 19, EN_FONT);
-    if (i > 0) addLine(slide, `ladder-${i}`, x - 70, y + 26, x, y + 26, C.line, 1.4);
+  addText(slide, "prompt", prompt, { left: 136, top: 306, width: 370, height: 120 }, {
+    fontSize: 27,
+    bold: true,
+    color: C.ink,
+    lineSpacing: 1.13,
   });
-  addLine(slide, "ladder-to-gate", 915, 282, 952, 282, C.line, 1.4);
-  addSurface(slide, "gate", 952, 224, 236, 196, C.amberLight, C.amber);
-  addText(slide, "gate-title", "Verification gate", { left: 980, top: 254, width: 180, height: 30 }, { fontSize: 21, bold: true, color: C.amber, alignment: "center", typeface: EN_FONT });
-  addText(slide, "gate-list", "資料來源\n程式輸出\n統計假設\n人工判斷", { left: 1004, top: 312, width: 150, height: 84 }, { fontSize: 16, color: C.secondary, lineSpacing: 1.12 });
-  addText(slide, "note", "推理若建立在錯誤事實上，結論仍然錯。", { left: 210, top: 586, width: 820, height: 34 }, { fontSize: 25, bold: true, color: C.coral, alignment: "center" });
-  addFooter(slide, 10);
-  addSpeakerNotes(slide, "區分 reasoning-like behavior 和 validated reasoning。LLM 可以幫忙規劃分析、提出候選解釋，但 biomedical 結論必須回到資料、文獻、程式、統計結果檢查。");
+  addSurface(slide, "task-box", 690, 198, 460, 294, C.white, C.line);
+  addText(slide, "task-label", "要補上的規格", { left: 730, top: 232, width: 230, height: 28 }, {
+    fontSize: 22,
+    bold: true,
+    color: C.indigo,
+  });
+  addBulletList(slide, "tasks", tasks, { left: 732, top: 294, width: 330, height: 150 }, {
+    fontSize: 21,
+    spaceAfter: 8,
+  });
+  addText(slide, "timing", timing, { left: 310, top: 578, width: 660, height: 40 }, {
+    fontSize: 28,
+    bold: true,
+    color,
+    alignment: "center",
+  });
+  notes(slide, "讓學生真的改寫 prompt。討論時請聚焦在來源、版本、schema、not found rule 與 review boundary。");
 }
 
-function slide11(p) {
+function checklistSlide(p, n) {
   const slide = p.slides.add();
-  slide.background.fill = C.bg;
-  addEyebrow(slide, "TOOL USE", C.teal);
-  addTitle(slide, "Tool use 讓 LLM 請外部系統做可檢查的事");
-  const llm = addNode(slide, "llm", "LLM", 106, 324, 120, 56, C.indigo, C.indigoLight, 22, EN_FONT);
-  const call = addNode(slide, "call", "function call\nstructured args", 310, 310, 178, 76, C.indigo, C.white, 17, EN_FONT);
-  const tool = addNode(slide, "tool", "database / script / API", 578, 310, 210, 76, C.teal, C.tealLight, 17, EN_FONT);
-  const result = addNode(slide, "result", "structured result", 878, 310, 176, 76, C.teal, C.white, 18, EN_FONT);
-  const summary = addNode(slide, "summary", "model summarizes", 1040, 442, 160, 58, C.indigo, C.white, 16, EN_FONT);
-  connect(slide, llm, call, C.indigo);
-  connect(slide, call, tool, C.teal);
-  connect(slide, tool, result, C.teal);
-  vConnect(slide, result, summary, C.indigo, true);
-  addText(slide, "note", "Agent = LLM + tools + loop + checks", {
-    left: 310,
-    top: 552,
-    width: 640,
-    height: 40,
-  }, { fontSize: 30, bold: true, color: C.ink, alignment: "center", typeface: EN_FONT });
-  addFooter(slide, 11);
-  addSpeakerNotes(slide, "建立和第二堂課的銜接：agent 不是比較聰明的聊天。agent 的價值在於能把不可靠的文字生成，接到可靠的工具執行與檢查流程。");
-}
-
-function slide12(p) {
-  const slide = p.slides.add();
-  slide.background.fill = C.bg;
-  addEyebrow(slide, "BACK TO THE AGENT LOOP", C.indigo);
-  addTitle(slide, "Agent 把 model 放進 tools、state 與 review loop");
-  addLine(slide, "goal-model-a", 248, 336, 300, 336, C.line, 1.4);
-  addLine(slide, "goal-model-b", 300, 280, 300, 336, C.line, 1.4);
-  addLine(slide, "goal-model-c", 300, 280, 338, 280, C.line, 1.4);
-  addLine(slide, "model-tools", 508, 280, 622, 280, C.indigo, 1.8);
-  addLine(slide, "tools-observe-a", 742, 280, 800, 280, C.teal, 1.8);
-  addLine(slide, "tools-observe-b", 800, 280, 800, 339, C.teal, 1.8);
-  addLine(slide, "tools-observe-c", 800, 339, 868, 339, C.teal, 1.8);
-  addLine(slide, "observe-verify-a", 933, 366, 933, 424, C.amber, 1.8);
-  addLine(slide, "observe-verify-b", 685, 424, 933, 424, C.amber, 1.8);
-  addLine(slide, "observe-verify-c", 685, 424, 685, 464, C.amber, 1.8);
-  addLine(slide, "verify-state", 470, 491, 620, 491, C.amber, 1.8);
-  addLine(slide, "state-goal-a", 120, 491, 344, 491, C.line, 1.4, true);
-  addLine(slide, "state-goal-b", 120, 336, 120, 491, C.line, 1.4, true);
-  addLine(slide, "state-goal-c", 120, 336, 144, 336, C.line, 1.4, true);
-  const goal = addNode(slide, "goal", "Goal", 144, 312, 104, 48, C.muted, C.white, 15, EN_FONT);
-  const model = addNode(slide, "model", "Model\nLLM call", 338, 242, 170, 76, C.indigo, C.indigoLight, 21, EN_FONT);
-  const tools = addNode(slide, "tools", "Tools", 622, 253, 120, 54, C.teal, C.tealLight, 18, EN_FONT);
-  const observe = addNode(slide, "observe", "Observe", 868, 312, 130, 54, C.secondary, C.white, 18, EN_FONT);
-  const verify = addNode(slide, "verify", "Verify", 620, 464, 130, 54, C.amber, C.amberLight, 20, EN_FONT);
-  const state = addNode(slide, "state", "State", 344, 464, 126, 54, C.secondary, C.white, 18, EN_FONT);
-  addText(slide, "note", "今天學的是 model 層；可靠 workflow 還需要 tools、state、verification。", {
-    left: 210,
-    top: 592,
-    width: 840,
-    height: 34,
-  }, { fontSize: 23, bold: true, color: C.secondary, alignment: "center" });
-  addFooter(slide, 12);
-  addSpeakerNotes(slide, "回到第二堂 agent loop，這次只高亮 model decision point。學生要理解，今天學的是 model 層，但可靠 agent workflow 還需要 tools、state、verification。");
-}
-
-function slide13(p) {
-  const slide = p.slides.add();
-  slide.background.fill = C.bg;
-  addEyebrow(slide, "TEMPERATURE AND REPRODUCIBILITY", C.indigo);
-  addTitle(slide, "Temperature 影響穩定性，不等於聰明程度");
-  addLine(slide, "slider", 226, 284, 1010, 284, C.line, 6);
-  addNode(slide, "low", "low temp\nrepeatable", 174, 230, 160, 74, C.indigo, C.indigoLight, 18, EN_FONT);
-  addNode(slide, "mid", "default\nbalanced", 552, 230, 160, 74, C.secondary, C.white, 18, EN_FONT);
-  addNode(slide, "high", "high temp\nvaried", 910, 230, 160, 74, C.coral, C.coralLight, 18, EN_FONT);
-  const variants = [
-    "EGFR is linked to targeted therapy.",
-    "EGFR mutations can guide TKI selection.",
-    "Evidence should be checked against sources.",
-  ];
-  variants.forEach((v, i) => addNode(slide, `variant-${i}`, v, 158 + i * 330, 416, 288, 66, i === 2 ? C.amber : C.secondary, C.white, 17, EN_FONT));
-  addText(slide, "note", "可重現要保存 model、prompt、context、工具版本與資料版本。", {
-    left: 204,
-    top: 586,
-    width: 820,
-    height: 34,
-  }, { fontSize: 23, bold: true, color: C.secondary, alignment: "center" });
-  addFooter(slide, 13);
-  addSpeakerNotes(slide, "讓學生理解同樣問題為什麼答案不同。實務上要記錄 model、日期、prompt、context、工具版本、資料版本、輸出檔案，必要時固定 seed 或 deterministic 設定。");
-}
-
-function slide14(p) {
-  const slide = p.slides.add();
-  slide.background.fill = C.bg;
-  addEyebrow(slide, "BIOMEDICAL SAFETY BOUNDARY", C.coral);
-  addTitle(slide, "Biomedical LLM 可以協助，但要知道何時停止");
-  addSurface(slide, "assist", 120, 226, 420, 280, C.tealLight, C.teal);
-  addText(slide, "assist-title", "Can assist", { left: 166, top: 260, width: 240, height: 34 }, { fontSize: 28, bold: true, color: C.teal, typeface: EN_FONT });
-  addBulletList(slide, "assist-list", ["摘要與分類", "整理 evidence table", "草擬分析步驟", "提出檢查清單"], { left: 170, top: 330, width: 300, height: 130 }, { fontSize: 22, color: C.ink, spaceAfter: 8 });
-
-  addSurface(slide, "stop", 720, 226, 420, 280, C.coralLight, C.coral);
-  addText(slide, "stop-title", "Stop / review", { left: 768, top: 260, width: 260, height: 34 }, { fontSize: 28, bold: true, color: C.coral, typeface: EN_FONT });
-  addBulletList(slide, "stop-list", ["診斷或治療建議", "drug dosage", "variant pathogenicity", "clinical action"], { left: 768, top: 330, width: 300, height: 130 }, { fontSize: 22, color: C.ink, spaceAfter: 8 });
-  addNode(slide, "gate", "Human review gate", 488, 548, 270, 54, C.amber, C.amberLight, 22, EN_FONT);
-  addFooter(slide, 14);
-  addSpeakerNotes(slide, "把安全講成工程規格，而不是抽象倫理。任何會影響臨床解讀、病人風險、藥物建議、variant pathogenicity 的內容，都要有 evidence trail 和 human review。");
-}
-
-function slide15(p) {
-  const slide = p.slides.add();
-  slide.background.fill = C.ink;
-  addText(slide, "title", "Good task specs make LLM output checkable", {
+  slide.background.fill = C.dark;
+  addText(slide, "title", "每次用 LLM 做 biomedical 任務前，問這 6 件事", {
     left: 84,
-    top: 78,
-    width: 950,
-    height: 58,
-  }, { fontSize: 42, bold: true, color: C.white, typeface: EN_FONT });
-  addText(slide, "subtitle", "Mini exercise: 把不可靠 prompt 改成可檢查的 task spec", {
-    left: 88,
-    top: 154,
-    width: 900,
-    height: 36,
-  }, { fontSize: 24, color: "#DDE4E8" });
-  addSurface(slide, "bad", 96, 248, 390, 224, "#26313A", "#52616D");
-  addText(slide, "bad-title", "Unreliable prompt", { left: 126, top: 278, width: 250, height: 30 }, { fontSize: 21, bold: true, color: C.coral, typeface: EN_FONT });
-  addText(slide, "bad-copy", "分析這些基因和癌症的關係，整理成表格。", { left: 126, top: 340, width: 300, height: 78 }, { fontSize: 23, color: "#DDE4E8", lineSpacing: 1.15 });
-  addSurface(slide, "spec", 638, 230, 474, 272, "#26313A", C.indigo);
-  addText(slide, "spec-title", "Checkable task spec", { left: 668, top: 260, width: 260, height: 30 }, { fontSize: 21, bold: true, color: "#AEBBFF", typeface: EN_FONT });
-  const specItems = ["Goal", "Inputs + versions", "Evidence sources", "Output schema", "Checks + not found rule"];
-  specItems.forEach((s, i) => addNode(slide, `spec-${i}`, s, 676 + (i % 2) * 210, 318 + Math.floor(i / 2) * 58, i === 4 ? 296 : 178, 38, i === 4 ? C.amber : C.indigo, i === 4 ? C.amberLight : C.indigoLight, 15, EN_FONT));
-  addText(slide, "next", "Next: desktop agent workflow 將把 task spec 接到檔案、瀏覽器、terminal 和資料來源。", {
-    left: 132,
-    top: 570,
+    top: 74,
     width: 980,
+    height: 62,
+  }, { fontSize: 39, bold: true, color: C.white });
+  const items = [
+    "資料來源和版本在哪？",
+    "哪些內容真的進了 context？",
+    "哪些 claim 需要 citation？",
+    "輸出 schema 能不能暴露錯誤？",
+    "找不到證據時會不會停止？",
+    "哪一步需要 human review？",
+  ];
+  items.forEach((item, i) => {
+    const x = 110 + (i % 2) * 540;
+    const y = 184 + Math.floor(i / 2) * 112;
+    addNode(slide, `num-${i}`, `${i + 1}`, x, y, 50, 50, i < 3 ? C.teal : C.amber, i < 3 ? C.tealLight : C.amberLight, 20, EN_FONT);
+    addText(slide, `item-${i}`, item, { left: x + 72, top: y + 8, width: 390, height: 48 }, {
+      fontSize: 24,
+      bold: true,
+      color: "#DDE4E8",
+      lineSpacing: 1.08,
+    });
+  });
+  addText(slide, "bottom", "AI 很會講話，工程師和研究者要很會驗證。", {
+    left: 210,
+    top: 594,
+    width: 860,
     height: 34,
-  }, { fontSize: 22, bold: true, color: "#DDE4E8", alignment: "center" });
-  addDarkFooter(slide, 15);
-  addSpeakerNotes(slide, "本堂核心轉換：從『請幫我分析』改成『可檢查任務規格』。練習可用不可靠 prompt：請幫我找出 TP53、EGFR、ALK 跟肺癌的關係，整理成表格。要求學生指定 gene symbol 標準、癌別範圍、資料來源、欄位格式、citation 欄位、找不到證據時填 not found、不得編造 PMID。");
+  }, { fontSize: 25, bold: true, color: "#FFD98A", alignment: "center" });
+  addFooter(slide, n, true);
+  notes(slide, "把全課收斂成可帶走的 checklist。");
+}
+
+function sectionSlide(p, n, eyebrow, title, subtitle, color = C.indigo) {
+  const slide = p.slides.add();
+  slide.background.fill = color === C.coral ? C.coralLight : color === C.teal ? C.tealLight : C.indigoLight;
+  addEyebrow(slide, eyebrow, color);
+  addText(slide, "section-title", title, { left: 84, top: 210, width: 940, height: 94 }, {
+    fontSize: 44,
+    bold: true,
+    color,
+    lineSpacing: 1.02,
+  });
+  addText(slide, "section-subtitle", subtitle, { left: 88, top: 338, width: 880, height: 64 }, {
+    fontSize: 26,
+    bold: true,
+    color: C.secondary,
+    lineSpacing: 1.12,
+  });
+  addFooter(slide, n);
+  notes(slide, subtitle);
+}
+
+function buildSlides(p) {
+  titleSlide(p, 1);
+  agendaSlide(p, 2);
+  thesisSlide(p, 3);
+  compareSlide(p, 4, "WRONG INTUITION 1", "LLM 不是 biomedical database", {
+    title: "不要這樣想",
+    items: ["像 PubMed 一樣查表", "像 ClinVar 一樣保證版本", "像 HGNC 一樣維護符號"],
+  }, {
+    title: "比較接近這樣",
+    items: ["根據 context 生成文字", "可能記得常見模式", "需要外部來源查證"],
+  }, "資料庫回答要可追溯；LLM 回答要被驗證。", C.coral);
+  compareSlide(p, 5, "WRONG INTUITION 2", "講得順不代表講得對", {
+    title: "流暢答案",
+    items: ["語氣穩", "格式漂亮", "聽起來像 paper"],
+  }, {
+    title: "可靠答案",
+    items: ["claim 對應來源", "版本清楚", "找不到就停止"],
+  }, "流暢度是語言能力，不是 evidence。", C.coral);
+  sectionSlide(p, 6, "PART 1", "模型怎麼把文字變成輸出", "先理解 token、next-token prediction 與 context window。", C.indigo);
+  conceptSlide(p, 7, "TOKEN", "Token 是模型處理文字的基本單位", [
+    "token 不一定等於一個中文字或英文單字",
+    "符號、數字、variant notation 可能被切成多段",
+    "模型的輸入、輸出、成本與長度限制都跟 token 有關",
+  ], "學生不用背切法，\n但要知道模型不是用人類讀法在看字。");
+  tokenExampleSlide(p, 8);
+  flowSlide(p, 9, "NEXT-TOKEN PREDICTION", "LLM 一步一步預測下一段最可能的文字", [
+    { label: "TP53", color: C.teal, typeface: EN_FONT },
+    { label: "is associated", color: C.secondary, typeface: EN_FONT },
+    { label: "with", color: C.secondary, typeface: EN_FONT },
+    { label: "cancer?\nmutation?\nrisk?", color: C.indigo, fill: C.indigoLight, fontSize: 16, typeface: EN_FONT },
+  ], "它很會補完模式，所以也可能補出一個看起來合理但不存在的 PMID。");
+  conceptSlide(p, 10, "WHY PLAUSIBLE TEXT HAPPENS", "為什麼 LLM 很容易產生「像答案」的文字", [
+    "訓練目標讓它學會延續語言模式",
+    "常見知識會讓答案看起來很有把握",
+    "當 prompt 要求它一定回答時，它會傾向完成任務",
+  ], "像答案 ≠ 是答案", C.coral);
+  conceptSlide(p, 11, "CONTEXT WINDOW", "Context window 是模型當下看得到的工作桌面", [
+    "包含 system prompt、user prompt、貼上的資料、tool output",
+    "沒有放進 context 的內容，模型不能可靠引用",
+    "長文件需要切段、選擇、摘要與來源標記",
+  ], "它不是無限記憶，\n只是當下桌面。", C.teal);
+  conceptSlide(p, 12, "CONTEXT LIMIT", "Biomedical context 常常比模型桌面還大", [
+    "一篇 PDF 可能有補充表格、方法、cohort、版本資訊",
+    "資料庫有日期、release、genome build、transcript version",
+    "表格欄位若沒有定義，模型會自己猜意思",
+  ], "資料放不完整，\n答案就不能當完整。", C.teal);
+  compareSlide(p, 13, "CONTEXT POLLUTION", "錯資料進 context，模型會很認真地整理錯誤", {
+    title: "污染來源",
+    items: ["過期資料庫匯出", "錯誤中間結果", "未標註物種或 build"],
+  }, {
+    title: "防護方式",
+    items: ["保留來源 ID", "保留版本日期", "讓模型標註不確定"],
+  }, "LLM 不會自動知道你丟進去的表格是錯的。", C.coral);
+  sectionSlide(p, 14, "PART 2", "Agent 裡的 LLM 不是單獨工作", "system prompt、tool use、memory 決定了它能不能被檢查。", C.teal);
+  conceptSlide(p, 15, "SYSTEM PROMPT", "System prompt 是行為規則，不是任務內容", [
+    "定義角色、邊界、禁止事項與輸出要求",
+    "可要求模型引用來源、拒絕無證據 claim",
+    "不清楚的規則會讓 agent 行為難以 debug",
+  ], "規則層和任務層\n要分開想。");
+  compareSlide(p, 16, "PROMPT LAYERS", "User prompt 和 system prompt 解決不同問題", {
+    title: "User prompt",
+    items: ["這次要做什麼", "要處理哪些檔案", "希望輸出什麼格式"],
+    color: C.teal,
+    fill: C.tealLight,
+  }, {
+    title: "System prompt",
+    items: ["永遠遵守的規則", "安全邊界", "遇到缺證據要停止"],
+    color: C.indigo,
+    fill: C.indigoLight,
+  }, "答錯時先問：任務錯、規則錯、材料錯，還是檢查流程錯？");
+  flowSlide(p, 17, "PROMPT PACKET", "真正送進模型的是一包材料", [
+    { label: "system\nrules", color: C.indigo, fill: C.indigoLight, fontSize: 17, typeface: EN_FONT },
+    { label: "user\ntask", color: C.teal, fill: C.tealLight, fontSize: 17, typeface: EN_FONT },
+    { label: "context\nfiles", color: C.secondary, fontSize: 17, typeface: EN_FONT },
+    { label: "tool\nresults", color: C.amber, fill: C.amberLight, fontSize: 17, typeface: EN_FONT },
+  ], "Debug agent 時，要能指出是哪一層讓答案變差。");
+  flowSlide(p, 18, "TOOL USE", "Tool use 讓 LLM 請外部系統做可檢查的事", [
+    { label: "LLM\nplans", color: C.indigo, fill: C.indigoLight, fontSize: 18, typeface: EN_FONT },
+    { label: "function\ncall", color: C.indigo, fontSize: 17, typeface: EN_FONT },
+    { label: "database /\nscript / API", color: C.teal, fill: C.tealLight, fontSize: 17, typeface: EN_FONT },
+    { label: "structured\nresult", color: C.teal, fontSize: 17, typeface: EN_FONT },
+  ], "LLM 負責規劃與解釋；工具負責查證與計算。", C.teal);
+  tableSlide(p, 19, "BIOMEDICAL TOOL EXAMPLES", "哪些事應該交給 tool，而不是讓模型猜", ["Need", "Bad if model guesses", "Better tool/check"], [
+    ["Citation", "PMID / DOI 看起來像真的", "PubMed / DOI lookup"],
+    ["Gene symbol", "alias、舊名、物種混淆", "HGNC / organism check"],
+    ["Variant", "HGVS、transcript、build 錯", "ClinVar / VEP / build check"],
+    ["Computation", "算式或統計被口算", "script + saved output"],
+    ["Table lookup", "欄位含義被猜測", "schema + row IDs"],
+  ], C.teal);
+  conceptSlide(p, 20, "MEMORY", "Memory 是被保存、取回、再放進 context 的資訊", [
+    "memory 不是模型腦中神秘角落",
+    "它通常是外部儲存或系統狀態",
+    "被取回後仍然要跟這次任務一起檢查",
+  ], "Memory 也可能\n過期或污染任務。", C.amber);
+  conceptSlide(p, 21, "MEMORY RISK", "Biomedical memory 最怕舊版本和錯任務混在一起", [
+    "上次的 ClinVar release 可能已經不是這次要用的版本",
+    "舊分析假設可能不適用新的 cohort",
+    "長期偏好不能取代本次 evidence trail",
+  ], "記憶越方便，\n越要標版本。", C.amber);
+  exerciseSlide(p, 22, "小練習 1：哪些放 context，哪些交給 tool？", "請模型判斷 EGFR exon 19 deletion 是否和某藥物治療有關。", [
+    "哪些資料要放進 context？",
+    "哪些事要 tool lookup？",
+    "哪些 claim 要 human review？",
+    "缺資料時要怎麼停止？",
+  ], "5 分鐘分組 + 3 分鐘講答案");
+  sectionSlide(p, 23, "PART 3", "Hallucination 不是偶發小錯，是生成式系統的自然風險", "接下來把錯誤拆成來源和檢查方式。", C.coral);
+  conceptSlide(p, 24, "HALLUCINATION", "Hallucination 是沒有可靠依據卻生成合理文字", [
+    "它可能是完全編造，也可能是混合幾個相似事實",
+    "最危險的是語氣穩、格式好、但 evidence 不存在",
+    "biomedical 錯誤常常很像真的",
+  ], "語氣不是證據。", C.coral);
+  conceptSlide(p, 25, "SOURCE 1", "缺少證據，但 prompt 逼它回答", [
+    "「一定要給我結論」會增加編造風險",
+    "模型傾向完成任務，而不是讓你失望",
+    "要明確允許 not found、insufficient evidence、needs review",
+  ], "好 prompt 要允許它說：\n我不知道。", C.coral);
+  conceptSlide(p, 26, "SOURCE 2", "相似概念混淆會讓答案看起來專業又危險", [
+    "gene alias 和正式 symbol 混用",
+    "疾病 subtype 被合併成一個大類",
+    "drug indication、trial evidence、guideline recommendation 混在一起",
+  ], "相近不等於相同。", C.coral);
+  conceptSlide(p, 27, "SOURCE 3", "Context 不完整或版本錯誤會導致錯結論", [
+    "只給 abstract，模型可能補出 full text 才有的細節",
+    "ClinVar、gnomAD、Ensembl release 不一致",
+    "reference genome build 或 transcript version 沒寫清楚",
+  ], "版本沒寫，\n就是在邀請混亂。", C.coral);
+  tableSlide(p, 28, "COMMON ERROR 1", "假 citation：最像真的錯誤", ["Pattern", "What goes wrong", "How to check"], [
+    ["Fabricated PMID", "號碼存在但不支持該 claim", "open PubMed record"],
+    ["Wrong DOI", "DOI 指到不同 paper", "DOI resolver"],
+    ["Over-cited review", "review 被當 primary evidence", "check study type"],
+    ["Quote drift", "引用句子和原文意思不同", "keep evidence quote"],
+  ], C.coral);
+  tableSlide(p, 29, "COMMON ERROR 2", "錯 gene symbol：一個字母就能換世界線", ["Pattern", "What goes wrong", "How to check"], [
+    ["Alias", "舊名和正式 symbol 混用", "HGNC approved symbol"],
+    ["Species", "mouse gene 被當 human gene", "organism check"],
+    ["Family", "gene family member 被混淆", "stable ID"],
+    ["Formatting", "大小寫造成物種或符號誤判", "naming convention"],
+  ], C.coral);
+  tableSlide(p, 30, "COMMON ERROR 3", "錯資料庫版本：答案不是錯在語言，是錯在時間", ["Database", "Version risk", "Check"], [
+    ["ClinVar", "interpretation 會更新", "release date"],
+    ["gnomAD", "population frequency 版本差異", "dataset version"],
+    ["Ensembl", "gene model / transcript 改變", "release + transcript"],
+    ["Reference", "GRCh37 / GRCh38 座標不同", "genome build"],
+  ], C.coral);
+  tableSlide(p, 31, "COMMON ERROR 4", "過度臨床推論：從相關性跳到建議", ["Claim", "Danger", "Boundary"], [
+    ["Association", "被講成 causation", "state evidence level"],
+    ["Biomarker", "被講成 treatment decision", "guideline / label"],
+    ["Variant", "被講成 pathogenic", "ClinVar + expert review"],
+    ["Summary", "被講成 patient-specific advice", "human clinical review"],
+  ], C.coral);
+  conceptSlide(p, 32, "WHY VERIFY", "Biomedical 任務需要驗證，因為錯誤有實際代價", [
+    "研究結論可能被錯誤 evidence 影響",
+    "臨床語氣可能讓非專家誤以為是建議",
+    "資料庫版本錯誤會讓結果難以重現",
+  ], "可驗證不是潔癖，\n是專業安全帶。", C.teal);
+  conceptSlide(p, 33, "CHECKABLE TASK SPEC", "可檢查 task spec 讓 LLM 不容易亂發揮", [
+    "Goal：要產出什麼，給誰用",
+    "Inputs：資料、欄位、版本、限制",
+    "Sources：允許使用哪些 evidence",
+    "Schema：欄位、型別、citation、not found rule",
+    "Review boundary：哪些 claim 必須人工檢查",
+  ], "Prompt = 任務 + 材料 + 格式 + 檢查規則", C.teal);
+  exerciseSlide(p, 34, "小練習 2：把壞 prompt 改成可檢查 task spec", "幫我整理 TP53、EGFR、ALK 跟肺癌的關係，做成表格。", [
+    "指定資料來源與版本",
+    "指定欄位與 citation 格式",
+    "每個 claim 附 evidence quote",
+    "找不到證據時填 not found",
+    "標出需要 human review 的欄位",
+  ], "8 分鐘改寫 + 5 分鐘分享", C.coral);
+  checklistSlide(p, 35);
 }
 
 async function main() {
@@ -610,21 +648,7 @@ async function main() {
   await fs.mkdir(path.dirname(FINAL_PPTX), { recursive: true });
 
   const presentation = Presentation.create({ slideSize: { width: W, height: H } });
-  slide1(presentation);
-  slide2(presentation);
-  slide3(presentation);
-  slide4(presentation);
-  slide5(presentation);
-  slide6(presentation);
-  slide7(presentation);
-  slide8(presentation);
-  slide9(presentation);
-  slide10(presentation);
-  slide11(presentation);
-  slide12(presentation);
-  slide13(presentation);
-  slide14(presentation);
-  slide15(presentation);
+  buildSlides(presentation);
 
   for (const [index, slide] of presentation.slides.items.entries()) {
     const stem = `slide-${String(index + 1).padStart(2, "0")}`;

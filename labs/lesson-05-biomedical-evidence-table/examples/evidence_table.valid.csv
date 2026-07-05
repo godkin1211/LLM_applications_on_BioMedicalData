@@ -1,0 +1,2 @@
+question,entity_type,entity,claim,evidence_type,source_title,source_id,PMID_or_DOI,year,quoted_evidence,agent_summary,confidence,limitation,needs_human_review,reviewer_correction
+EGFR exon 19 deletion and NSCLC therapy response,gene,EGFR,EGFR exon 19 deletion is associated with response to EGFR-TKI therapy in NSCLC,clinical study,Example source,PMID:12345678,12345678,2020,"Patients with EGFR exon 19 deletion showed response to EGFR-TKI therapy.",Short agent summary,medium,Example row for classroom validation,TRUE,
