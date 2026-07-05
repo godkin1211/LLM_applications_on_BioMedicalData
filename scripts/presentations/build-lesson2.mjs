@@ -10,7 +10,7 @@ const FINAL_PPTX = path.join(REPO_ROOT, "slides", "lesson-02-ai-agents-vibe-codi
 const W = 1280;
 const H = 720;
 const frame = { left: 76, top: 58, width: 1128, height: 594 };
-const TOTAL = 22;
+const TOTAL = 23;
 
 const C = {
   bg: "#F7F8F6",
@@ -621,10 +621,86 @@ function slide7(p) {
   addSpeakerNotes(slide, "這張是新版的重要補強。學生要理解 agent workflow 的可追溯性來自 artifact，而不是來自模型宣稱自己做了什麼。");
 }
 
+function slideBaoyuDesignTechnique(p) {
+  const slide = p.slides.add();
+  slide.background.fill = C.bg;
+  addHeader(slide, "SUPPLEMENT: BAOYU PRACTICE", "把投影片當成可預覽、可修補、可驗證的 artifact", 12, C.indigo);
+  addText(slide, "source", "Source case: X @dotey / baoyu-design skill，示範以 agent 補足 PPTX 動畫輸出的格式限制。", {
+    left: 94,
+    top: 164,
+    width: 1040,
+    height: 30,
+  }, { fontSize: 18, color: C.secondary });
+
+  const steps = [
+    ["1", "HTML prototype", "先用瀏覽器確認\n版面、動畫節奏與互動"],
+    ["2", "Export PPTX", "轉成 PowerPoint\n保留可編輯交付格式"],
+    ["3", "Patch Open XML", "當函式庫不支援動畫\n讓 coding agent 修補 XML"],
+    ["4", "Playback QA", "在 Keynote / PowerPoint\n逐頁播放、截圖、比對"],
+  ];
+  steps.forEach((step, i) => {
+    const x = 94 + i * 280;
+    const lineColor = i === 2 ? C.amber : i === 3 ? C.teal : C.indigo;
+    addSurface(slide, `artifact-step-${i}`, x, 220, 234, 164, C.white, lineColor);
+    addNode(slide, `artifact-num-${i}`, step[0], x + 18, 240, 44, 44, lineColor, i === 2 ? C.amberLight : C.indigoLight, 18, EN_FONT);
+    addText(slide, `artifact-title-${i}`, step[1], { left: x + 76, top: 246, width: 134, height: 26 }, {
+      fontSize: 18,
+      bold: true,
+      color: lineColor,
+      typeface: EN_FONT,
+    });
+    addText(slide, `artifact-copy-${i}`, step[2], { left: x + 24, top: 306, width: 186, height: 58 }, {
+      fontSize: 18,
+      color: C.ink,
+      alignment: "center",
+      lineSpacing: 1.08,
+    });
+    if (i < steps.length - 1) {
+      addText(slide, `artifact-arrow-${i}`, ">", { left: x + 248, top: 286, width: 26, height: 34 }, {
+        fontSize: 30,
+        bold: true,
+        color: C.muted,
+        alignment: "center",
+        typeface: EN_FONT,
+      });
+    }
+  });
+
+  addSurface(slide, "pattern-box", 112, 466, 498, 106, C.indigoLight, C.indigo);
+  addText(slide, "pattern-title", "課堂要帶走的技巧", { left: 144, top: 490, width: 220, height: 26 }, {
+    fontSize: 20,
+    bold: true,
+    color: C.indigo,
+  });
+  addBulletList(slide, "pattern-list", [
+    "先產生可視化 artifact，再做格式輸出",
+    "把工具限制轉成 agent 可檢查的修補任務",
+  ], { left: 146, top: 526, width: 410, height: 42 }, { fontSize: 17, spaceAfter: 3 });
+
+  addSurface(slide, "guardrail-box", 670, 466, 498, 106, C.amberLight, C.amber);
+  addText(slide, "guardrail-title", "生醫教材中的邊界", { left: 702, top: 490, width: 220, height: 26 }, {
+    fontSize: 20,
+    bold: true,
+    color: C.amber,
+  });
+  addBulletList(slide, "guardrail-list", [
+    "動畫與排版是 presentation artifact，不是證據",
+    "交付前必須人工播放檢查與保留來源紀錄",
+  ], { left: 704, top: 526, width: 410, height: 42 }, { fontSize: 17, spaceAfter: 3 });
+
+  addText(slide, "bottom", "重點不是炫技，而是讓 agent 產出的檔案能被人打開、修改、播放與追蹤。", {
+    left: 178,
+    top: 608,
+    width: 924,
+    height: 32,
+  }, { fontSize: 22, bold: true, color: C.coral, alignment: "center" });
+  addSpeakerNotes(slide, "補充宝玉分享的 baoyu-design 技巧：先用 HTML 方式建立可預覽的投影片與動畫，再匯出 PPTX。若匯出工具例如 PptxGenJS 缺少動畫支援，可讓熟悉 PPTX Open XML 的 coding agent 修改 XML，最後在 Keynote 或 PowerPoint 逐頁播放驗證。這堂課要把它講成 artifact-first workflow，而不是要求學生都做動畫。Source: https://x.com/dotey/status/2073286406558949828?s=20 ; baoyu-design: https://github.com/jimliu/baoyu-design");
+}
+
 function slide8(p) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
-  addHeader(slide, "TASK SUITABILITY", "適合 agent 的任務通常能被清楚驗證", 12, C.teal);
+  addHeader(slide, "TASK SUITABILITY", "適合 agent 的任務通常能被清楚驗證", 13, C.teal);
   const good = ["輸入資料明確", "輸出格式固定", "可用外部來源檢查", "錯誤能早期發現", "不直接造成臨床行動"];
   const bad = ["目標模糊", "只有主觀判斷", "缺少可查來源", "錯了不容易發現", "涉及治療或診斷決策"];
   addSurface(slide, "good", 116, 216, 454, 322, C.tealLight, C.teal);
@@ -645,7 +721,7 @@ function slide8(p) {
 function slide9(p) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
-  addHeader(slide, "BIOMEDICAL RED LINES", "有些 biomedical 輸出只能協助整理，不能直接定案", 13, C.coral);
+  addHeader(slide, "BIOMEDICAL RED LINES", "有些 biomedical 輸出只能協助整理，不能直接定案", 14, C.coral);
   const items = [
     ["Diagnosis", "診斷或治療建議"],
     ["Dosage", "藥物劑量"],
@@ -675,7 +751,7 @@ function slide9(p) {
 function slide10(p) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
-  addHeader(slide, "VIBE CODING", "Vibe coding 是快速探索，不是把責任交給模型", 14, C.indigo);
+  addHeader(slide, "VIBE CODING", "Vibe coding 是快速探索，不是把責任交給模型", 15, C.indigo);
   const stages = [
     ["Idea", "想法與資料"],
     ["Prototype", "快速草擬"],
@@ -705,7 +781,7 @@ function slide10(p) {
 function slide11(p) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
-  addHeader(slide, "SAFE VIBE LOOP", "安全的 vibe coding 一次只推進一個小步驟", 15, C.amber);
+  addHeader(slide, "SAFE VIBE LOOP", "安全的 vibe coding 一次只推進一個小步驟", 16, C.amber);
   const steps = [
     ["1", "Specify\nsmall task"],
     ["2", "Read\nreal files"],
@@ -735,7 +811,7 @@ function slide11(p) {
 function slide12(p) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
-  addHeader(slide, "RISK MATRIX", "Vibe coding 適合低模糊、低風險且可驗證的任務", 16, C.coral);
+  addHeader(slide, "RISK MATRIX", "Vibe coding 適合低模糊、低風險且可驗證的任務", 17, C.coral);
   const x = 228;
   const y = 208;
   const w = 780;
@@ -761,7 +837,7 @@ function slide12(p) {
 function slide13(p) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
-  addHeader(slide, "DESKTOP UTILITIES", "Desktop utilities 把研究者的日常材料接進 workflow", 17, C.teal);
+  addHeader(slide, "DESKTOP UTILITIES", "Desktop utilities 把研究者的日常材料接進 workflow", 18, C.teal);
   const rows = [
     ["Browser", "PubMed / guideline / database"],
     ["Files", "PDF / CSV / Excel / notes"],
@@ -790,7 +866,7 @@ function slide13(p) {
 function slide14(p) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
-  addHeader(slide, "TOOL-USE LIFECYCLE", "每次工具呼叫都要能被觀察與記錄", 18, C.teal);
+  addHeader(slide, "TOOL-USE LIFECYCLE", "每次工具呼叫都要能被觀察與記錄", 19, C.teal);
   const steps = [
     ["Call", "structured input"],
     ["Observe", "tool output"],
@@ -821,7 +897,7 @@ function slide14(p) {
 function slide15(p) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
-  addHeader(slide, "FAILURE MODES", "Agent workflow 常見錯誤多半不是語法錯，而是流程錯", 19, C.coral);
+  addHeader(slide, "FAILURE MODES", "Agent workflow 常見錯誤多半不是語法錯，而是流程錯", 20, C.coral);
   const failures = [
     ["Wrong tool", "查錯資料庫或讀錯檔"],
     ["Context drift", "任務做一做偏掉"],
@@ -857,7 +933,7 @@ function slide15(p) {
 function slide16(p) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
-  addHeader(slide, "CLASS EXERCISE", "三個任務先判斷，再決定 agent 能做多少", 20, C.amber);
+  addHeader(slide, "CLASS EXERCISE", "三個任務先判斷，再決定 agent 能做多少", 21, C.amber);
   const cases = [
     ["A", "PubMed 搜尋結果\n整理成 evidence table", C.teal],
     ["B", "判斷某 variant\n是否 pathogenic", C.coral],
@@ -886,7 +962,7 @@ function slide16(p) {
 function slide17(p) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
-  addHeader(slide, "WORKSHEET", "把研究任務改寫成 agent-ready workflow", 21, C.amber);
+  addHeader(slide, "WORKSHEET", "把研究任務改寫成 agent-ready workflow", 22, C.amber);
   const fields = [
     ["Goal", "要回答什麼"],
     ["Inputs", "資料與版本"],
@@ -948,7 +1024,7 @@ function slide18(p) {
     width: 520,
     height: 80,
   }, { fontSize: 22, color: "#DDE4E8", lineSpacing: 1.1 });
-  addDarkFooter(slide, 22);
+  addDarkFooter(slide, 23);
   addSpeakerNotes(slide, "自然收束到 Lesson 03。這堂已經建立 agent workflow 判斷框架，下一堂再看 model 層為什麼有效、為什麼會錯。");
 }
 
@@ -969,6 +1045,7 @@ async function main() {
     slide5,
     slide6,
     slide7,
+    slideBaoyuDesignTechnique,
     slide8,
     slide9,
     slide10,
