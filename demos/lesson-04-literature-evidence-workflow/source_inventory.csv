@@ -1,0 +1,5 @@
+PMID,DOI,title,journal,year,study_type,sample_n,disease,gene,drug_or_intervention,why_candidate,verification_status
+29151359,10.1056/NEJMoa1713137,Osimertinib in Untreated EGFR-Mutated Advanced Non-Small-Cell Lung Cancer,N Engl J Med,2018,double-blind phase 3 randomized trial,556,advanced EGFR-mutated NSCLC,EGFR,osimertinib vs standard EGFR-TKI,Direct treatment-efficacy evidence for EGFR-mutated advanced NSCLC,verified from PubMed abstract
+25470694,10.1056/NEJMoa1408440,First-line crizotinib versus chemotherapy in ALK-positive lung cancer,N Engl J Med,2014,open-label phase 3 randomized trial,343,advanced ALK-positive nonsquamous NSCLC,ALK,crizotinib vs pemetrexed-plus-platinum chemotherapy,Direct treatment-efficacy evidence for ALK-positive advanced NSCLC,verified from PubMed abstract
+25079552,10.1038/nature13385,Comprehensive molecular profiling of lung adenocarcinoma,Nature,2014,molecular profiling cohort,230,resected lung adenocarcinoma,EGFR; MET; ERBB2; RIT1,NA,Molecular context source for lung adenocarcinoma; not treatment-efficacy evidence,verified from PubMed abstract
+

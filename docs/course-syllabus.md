@@ -210,6 +210,8 @@ _課程細綱版本：2026-07-05。對象為大學生、研究生與生醫研究
 | 項目 | 內容 |
 | --- | --- |
 | 時間 | 7/11 13:00-14:30 |
+| 投影片 | `slides/lesson-04-desktop-agent-literature-evidence-workflow.pptx` |
+| Demo bundle | `demos/lesson-04-literature-evidence-workflow/` |
 | 教學目標 | 示範如何把 desktop agent 用在文獻搜尋、證據表與研究筆記 |
 | 核心問題 | 如何讓 agent 產出的 evidence table 能被人檢查，而不是只有看起來整齊 |
 
@@ -663,18 +665,19 @@ project/
 | `slides/course-introduction-ai-agent-biomedical-workflow.pptx` | Day 1 第 1 堂，課程介紹 | 已完成 |
 | `slides/lesson-02-ai-agents-vibe-coding-desktop-utilities.pptx` | Day 1 第 2 堂，AI agents、vibe coding、desktop utilities | 已完成 |
 | `slides/lesson-03-llm-basics-for-agent-users.pptx` | Day 1 第 3 堂，LLM basics | 已完成 |
+| `slides/lesson-04-desktop-agent-literature-evidence-workflow.pptx` | Day 1 第 4 堂，文獻搜尋、evidence table、research notes | 已完成 |
+| `demos/lesson-04-literature-evidence-workflow/` | Lesson 04 完整 demo：task spec、prompts、source inventory、evidence table、research note | 已完成 |
+| `slides/lesson-05-biomedical-evidence-table-hands-on.pptx` | Day 1 第 5 堂，desktop biomedical workflow hands-on lab | 已完成 |
 | `docs/course-syllabus.md` | 本課程詳細課綱 | 本文件 |
 
 後續投影片建議依照下列順序製作：
 
-1. Desktop agent workflow: literature search, evidence table, research notes
-2. Hands-on Lab 1: desktop biomedical workflow
-3. MCP and skills for agent tools
-4. Coding agents and CLI workflows
-5. Spec-driven development for biomedical workflows
-6. Harness engineering for AI agents
-7. Loop engineering for biomedical agents
-8. Biomedical hackathon scaffold and demo rubric
+1. MCP and skills for agent tools
+2. Coding agents and CLI workflows
+3. Spec-driven development for biomedical workflows
+4. Harness engineering for AI agents
+5. Loop engineering for biomedical agents
+6. Biomedical hackathon scaffold and demo rubric
 
 ## 教學設計原則
 
