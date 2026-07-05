@@ -14,10 +14,15 @@ The course is designed for undergraduate students, graduate students, and biomed
 
 ## Repository layout
 
+- `docs/`: Course syllabus and written teaching plans.
 - `slides/`: PowerPoint decks for teaching.
 - `scripts/presentations/`: Source scripts used to generate the current slide decks.
 
 The presentation scripts require the OpenAI artifact presentation runtime used during deck generation.
+
+## Course syllabus
+
+- `docs/course-syllabus.md`: Detailed three-day syllabus, session-level teaching plan, lab outputs, harness engineering module, loop engineering module, and hackathon rubric.
 
 ## Current design direction
 
