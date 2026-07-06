@@ -1,0 +1,41 @@
+[
+  {
+    "iteration": 1,
+    "issues": [
+      {
+        "issue_type": "overstatement",
+        "severity": "high",
+        "sentence": "Osimertinib is effective in all EGFR-mutant lung cancers and patients should receive it.",
+        "explanation": "Evidence only supports activity in T790M-positive NSCLC.",
+        "suggested_fix": "Limit the claim to T790M-positive NSCLC and cite [S2].",
+        "needs_human_review": false
+      },
+      {
+        "issue_type": "clinical_recommendation",
+        "severity": "high",
+        "sentence": "patients should receive it",
+        "explanation": "The summary makes a patient-level treatment recommendation.",
+        "suggested_fix": "Remove the recommendation and describe evidence only.",
+        "needs_human_review": true
+      },
+      {
+        "issue_type": "missing_source_id",
+        "severity": "medium",
+        "sentence": "Bypass pathway activation may also contribute to resistance.",
+        "explanation": "The claim has no source ID.",
+        "suggested_fix": "Add [S3] and mention that the evidence is preclinical.",
+        "needs_human_review": false
+      },
+      {
+        "issue_type": "clinical_recommendation",
+        "severity": "high",
+        "message": "Clinical-action-like phrase found: patients should",
+        "needs_human_review": true
+      }
+    ]
+  },
+  {
+    "iteration": 2,
+    "issues": []
+  }
+]

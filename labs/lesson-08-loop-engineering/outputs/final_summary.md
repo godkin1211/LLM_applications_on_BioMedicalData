@@ -1,0 +1,1 @@
+EGFR T790M is associated with resistance to first-generation EGFR TKIs in NSCLC [S1]. Osimertinib has reported activity in T790M-positive NSCLC [S2]. Preclinical evidence suggests bypass pathway activation may contribute to resistance, but this remains indirect evidence [S3].

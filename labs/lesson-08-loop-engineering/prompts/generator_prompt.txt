@@ -1,0 +1,14 @@
+You are generating a biomedical summary.
+
+Use only the provided evidence table.
+Every biomedical claim must cite a source_id like [S1].
+Do not make patient-level treatment recommendations.
+Mention uncertainty for preclinical or indirect evidence.
+Output no more than 220 words.
+
+Question:
+{{question}}
+
+Evidence:
+{{evidence_table}}
+

@@ -1,0 +1,21 @@
+You are evaluating a biomedical summary.
+
+Check for:
+- unsupported biomedical claims
+- missing or invalid source_id
+- overstatement beyond evidence
+- clinical recommendation language
+- missing uncertainty
+
+Return JSON issues:
+[
+  {
+    "issue_type": "...",
+    "severity": "high|medium|low",
+    "sentence": "...",
+    "explanation": "...",
+    "suggested_fix": "...",
+    "needs_human_review": true|false
+  }
+]
+

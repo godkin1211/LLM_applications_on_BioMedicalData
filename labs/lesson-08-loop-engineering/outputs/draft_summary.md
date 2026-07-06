@@ -1,0 +1,1 @@
+EGFR T790M is associated with resistance to first-generation EGFR TKIs in NSCLC [S1]. Osimertinib is effective in all EGFR-mutant lung cancers and patients should receive it. Bypass pathway activation may also contribute to resistance.

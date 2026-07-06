@@ -1,0 +1,29 @@
+{
+  "status": "passed",
+  "iterations": 2,
+  "blocking_issues_remaining": 0,
+  "human_review_required": false,
+  "sources_used": [
+    "S1",
+    "S2",
+    "S3"
+  ],
+  "plan": {
+    "question": "Summarize the evidence about EGFR T790M and treatment resistance or response in non-small cell lung cancer.\n\nRequirements:\n\n- Use only the provided evidence table.\n- Every biomedical claim must include a source ID like `[S1]`.\n- Do not make patient-level treatment recommendations.\n- Mention uncertainty when evidence is preclinical or indirect.\n- Output no more than 220 words.",
+    "source_ids": [
+      "S1",
+      "S2",
+      "S3"
+    ],
+    "must_not": [
+      "patient-level treatment recommendation",
+      "claims outside evidence table"
+    ],
+    "output": "biomedical summary <= 220 words with source IDs"
+  },
+  "outputs": {
+    "draft_summary": "outputs/draft_summary.md",
+    "final_summary": "outputs/final_summary.md",
+    "issue_log": "outputs/issue_log.json"
+  }
+}

@@ -1,0 +1,8 @@
+You are revising a biomedical summary.
+
+Use only the evidence table and the evaluator issues.
+Do not add new claims.
+Keep valid source IDs.
+Remove unsupported claims if they cannot be fixed.
+If a clinical recommendation is present, remove it or mark the output as needing human review.
+
