@@ -330,6 +330,8 @@ _課程細綱版本：2026-07-05。對象為大學生、研究生與生醫研究
 | 項目 | 內容 |
 | --- | --- |
 | 時間 | 7/12 10:20-11:50 |
+| 投影片 | `slides/lesson-07-coding-agents-cli-workflows.pptx` |
+| Lab bundle | `labs/lesson-07-coding-agents-cli-workflows/` |
 | 教學目標 | 讓學生學會用 coding agent 處理 repo-grounded 的開發、除錯與資料處理任務 |
 | 核心問題 | 如何讓 coding agent 讀實際程式與資料，而不是憑空建議 |
 
@@ -357,6 +359,12 @@ _課程細綱版本：2026-07-05。對象為大學生、研究生與生醫研究
   - 檢查 gene symbol 欄位格式
   - 將 JSON 或 HTML 報告抽成 table
   - 產生資料處理 pipeline 的 validation report
+- Seqera AI / Co-Scientist for bioinformatics workflow development
+  - 將 Seqera AI 定位成 Nextflow、nf-core 與 Seqera Platform context 的 domain coding agent
+  - 使用 `seqera ai` 協助設計、檢查與除錯 Nextflow pipeline
+  - 讓一般 coding agent 負責 repo patch、測試與 diff，讓 Seqera AI 負責 workflow domain review
+  - 以 prompt 明確要求不要未經同意啟動 cloud run、修改 workspace 或使用敏感資料
+  - 將 Seqera AI 的建議轉成可 review 的 patch plan、local validation commands 與 human approval checklist
 
 課堂活動：
 
@@ -365,11 +373,16 @@ _課程細綱版本：2026-07-05。對象為大學生、研究生與生醫研究
   - 加入欄位檢查
   - 產生 summary report
   - 回報測試方式
+- 補充活動：給定一個 toy Nextflow scaffold，要求學生設計 Seqera AI prompt：
+  - 提供 `sample_manifest.csv`、`nextflow/main.nf` 與 `nextflow.config` context
+  - 要求 Seqera AI 回報 DSL2、params、channel、process I/O 與 test profile 可能問題
+  - 要求它只提出 local validation commands，不得自行啟動 cloud execution
 
 學生產出：
 
 - 一個小 patch 或 pseudo-patch plan
 - 一段驗證紀錄，包含執行了哪些 command 與結果
+- 一份 Seqera AI / Nextflow review prompt，包含外部 action approval boundary
 
 ### 8. Spec-driven development for biomedical workflows
 

@@ -1,0 +1,6 @@
+sample_id,fastq_1,fastq_2,condition
+S01,data/S01_R1.fastq.gz,data/S01_R2.fastq.gz,tumor
+S02,data/S02_R1.fastq.gz,data/S02_R2.fastq.gz,normal
+bad sample,data/S03_R1.fastq.gz,data/S03_R2.fastq.gz,tumor
+S04,data/S04_R1.fastq.gz,,normal
+S05,data/S05_R1.fq,data/S05_R2.fastq.gz,tumor
