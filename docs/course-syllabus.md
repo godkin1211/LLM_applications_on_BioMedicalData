@@ -384,11 +384,13 @@ _課程細綱版本：2026-07-05。對象為大學生、研究生與生醫研究
 - 一段驗證紀錄，包含執行了哪些 command 與結果
 - 一份 Seqera AI / Nextflow review prompt，包含外部 action approval boundary
 
-### 8. Spec-driven development for biomedical workflows
+### 8. Spec-driven development for biomedical tools
 
 | 項目 | 內容 |
 | --- | --- |
 | 時間 | 7/12 13:00-14:30 |
+| 投影片 | `slides/lesson-08-spec-driven-development-biomedical-tools.pptx` |
+| Lab bundle | `labs/lesson-08-spec-driven-development-biomedical-tools/` |
 | 教學目標 | 讓學生把研究任務轉成 agent 可執行、可驗證、可測試的規格 |
 | 核心問題 | 為什麼清楚的規格比更長的 prompt 更重要 |
 
@@ -413,21 +415,33 @@ _課程細綱版本：2026-07-05。對象為大學生、研究生與生醫研究
   - Prompt 是一次對話指令
   - Spec 是可執行合約
   - Spec 可被 agent、助教、同學、未來自己重複使用
+- SDD 的實務取捨
+  - SDD 可降低 vibe coding 的猜測空間
+  - 過厚文件會造成 review 負擔與 spec drift
+  - 生醫工具適合使用輕量、可驗證、可版本控制的 `SPEC.md`
+  - Spec Kit、OpenSpec、Spectra 類工具可作為 scaffold，但不能取代 biomedical evidence rule 與人工審查
 - Biomedical spec 範例
-  - Gene-disease evidence table
-  - Variant annotation summary
-  - Drug response literature summary
-  - Cohort eligibility criteria extraction
+  - PubMed evidence extractor：要求 PMID、study type、claim、evidence status 與 not found rule
+  - Gene list annotation tool：要求 approved symbol、species、match type、source version 與 ambiguity handling
+  - Clinical trial summarizer：要求 NCT ID、retrieved date、source fields、eligibility summary 與 human review gate
 
 課堂活動：
 
 - 將 Day 1 的 task spec 擴充成 `SPEC.md`
 - 補上 output schema、acceptance criteria 與 failure modes
+- 從三個 biomedical tool 範例中選一個，寫出：
+  - clarification questions
+  - input / output schema
+  - boundary conditions
+  - error handling
+  - validation command
+  - agent handoff prompt
 
 學生產出：
 
 - 一份 `SPEC.md`
 - 一份簡短 acceptance checklist
+- 一份可交給 coding agent 的 implementation prompt
 
 ### 9. Harness engineering for AI agents
 
