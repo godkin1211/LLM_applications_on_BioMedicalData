@@ -420,6 +420,12 @@ _課程細綱版本：2026-07-05。對象為大學生、研究生與生醫研究
   - 過厚文件會造成 review 負擔與 spec drift
   - 生醫工具適合使用輕量、可驗證、可版本控制的 `SPEC.md`
   - Spec Kit、OpenSpec、Spectra 類工具可作為 scaffold，但不能取代 biomedical evidence rule 與人工審查
+- Spectra demo
+  - 使用 `/spectra:discuss` 先把 PubMed evidence extractor 的需求收斂
+  - 使用 `/spectra:propose` 產生 proposal、spec、design 與 tasks
+  - 在 `/spectra:apply` 前人工檢查 PMID traceability、not found rule、model inference 與 review gate
+  - 發現規格缺口時使用 `/spectra:ingest` 更新 artifacts，而不是讓 agent 直接補功能
+  - 完成後使用 `/spectra:archive` 歸檔並保留 trace
 - Biomedical spec 範例
   - PubMed evidence extractor：要求 PMID、study type、claim、evidence status 與 not found rule
   - Gene list annotation tool：要求 approved symbol、species、match type、source version 與 ambiguity handling
@@ -436,12 +442,16 @@ _課程細綱版本：2026-07-05。對象為大學生、研究生與生醫研究
   - error handling
   - validation command
   - agent handoff prompt
+- Spectra demo 活動：
+  - 用 PubMed evidence extractor 範例跑一次 discuss、propose、review、apply、ingest 的流程
+  - 比較 Spectra 產生的 artifacts 是否符合 biomedical spec checklist
 
 學生產出：
 
 - 一份 `SPEC.md`
 - 一份簡短 acceptance checklist
 - 一份可交給 coding agent 的 implementation prompt
+- 一份 Spectra demo artifact review note
 
 ### 9. Harness engineering for AI agents
 

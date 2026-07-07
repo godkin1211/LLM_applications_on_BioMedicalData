@@ -14,6 +14,7 @@ Students should learn to turn a vague biomedical tool request into a `SPEC.md` t
 - `examples/clinical-trial-summarizer/SPEC.md`: spec for a clinical trial summarizer.
 - `prompts/create_spec_prompt.md`: prompt for asking an agent to draft a spec.
 - `prompts/implement_from_spec_prompt.md`: prompt for asking an agent to implement from a spec.
+- `prompts/spectra_demo_prompt.md`: classroom demo prompt for a Spectra-style workflow.
 
 ## Suggested classroom use
 
@@ -22,6 +23,7 @@ Students should learn to turn a vague biomedical tool request into a `SPEC.md` t
 3. Ask students to edit the spec template.
 4. Ask a coding agent to create an implementation plan, but not code yet.
 5. Review whether the implementation plan satisfies the spec.
+6. Optionally run the Spectra demo prompt to show `discuss -> propose -> apply -> ingest`.
 
 ## Safety boundaries
 

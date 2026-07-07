@@ -9,7 +9,7 @@ const FINAL_PPTX = path.join(REPO_ROOT, "slides", "lesson-08-spec-driven-develop
 
 const W = 1280;
 const H = 720;
-const TOTAL = 36;
+const TOTAL = 40;
 const frame = { left: 76, top: 58, width: 1128, height: 594 };
 
 const C = {
@@ -281,7 +281,7 @@ function buildSlides(p) {
     addBulletList(slide, "panel-list", [
       "one reusable SPEC.md template",
       "three biomedical tool specs",
-      "acceptance checklist",
+      "Spectra demo flow",
       "agent handoff prompt",
     ], { left: 904, top: 230, width: 218, height: 190 }, { fontSize: 18, color: "#E2E8EE", spaceAfter: 12 });
     addFooter(slide, 1, true);
@@ -533,12 +533,64 @@ review_status`, "必要規則", [
   tableSlide(p, 29, "SDD TOOLING", "不同 SDD 工具都在解同一個問題：讓需求、設計與任務可追蹤", ["工具或概念", "課堂採用的想法", "生醫調整"], [
     ["Spec Kit", "constitution、specify、plan、tasks、implement", "constitution 加入 citation / PHI / clinical claim 規則"],
     ["OpenSpec", "proposal、spec、design、tasks 與狀態追蹤", "用 dependency order 管理 spec artifacts"],
-    ["Spectra", "GUI/CLI 讓規格流程更可見，並檢查遺漏與矛盾", "用於教學展示 spec review"],
+    ["Spectra", "GUI/CLI 讓規格流程更可見，支援 discuss、propose、ingest", "用於教學展示 spec review 與迭代更新"],
     ["Lightweight SDD", "先寫小規格，再小 patch 實作", "避免過度文件化"],
   ], C.indigo, { widths: [180, 500, 410], rowH: 66, fontSize: 15 });
   sourceLine(p.slides.items[p.slides.items.length - 1], "Sources: GitHub Spec Kit, OpenSpec/Spectra articles");
 
-  splitCodeSlide(p, 30, "ASK FOR SPEC", "先讓 agent 寫 spec，但要求它先問問題", "Prompt", `請不要開始寫程式。
+  workflowSlide(p, 30, "SPECTRA DEMO", "Spectra demo 要展示的是規格如何被建立、修正、實作與歸檔", [
+    { title: "Discuss", copy: "用 /spectra:discuss 收斂需求", color: C.indigo, fill: C.indigoLight },
+    { title: "Propose", copy: "用 /spectra:propose 產出規格文件", color: C.teal, fill: C.tealLight },
+    { title: "Review", copy: "人工檢查 evidence 與邊界", color: C.coral, fill: C.coralLight },
+    { title: "Apply", copy: "用 /spectra:apply 逐項實作", color: C.green, fill: C.greenLight },
+    { title: "Ingest", copy: "缺口回寫規格，不急著改 code", color: C.violet, fill: C.violetLight },
+    { title: "Archive", copy: "驗收後歸檔並保留 trace", color: C.amber, fill: C.amberLight },
+  ], C.violet);
+  sourceLine(p.slides.items[p.slides.items.length - 1], "Source: kaochenlong.com/spectra-app-2");
+
+  splitCodeSlide(p, 31, "SPECTRA DEMO PROMPT", "用 PubMed extractor 示範 Spectra 如何把討論變成規格", "Demo prompt", `/spectra:discuss
+
+Topic:
+設計一個 PubMed evidence extractor。
+
+請先讀目前 repo 裡的：
+- templates/biomedical-tool-spec-template.md
+- examples/pubmed-evidence-extractor/SPEC.md
+
+請收斂到：
+1. 允許資料來源
+2. input/output schema
+3. not_found rule
+4. human review gate
+5. validation fixtures
+
+先不要寫 code。`, "教師示範", [
+    "先用 discuss 收斂問題",
+    "再用 propose 產出 artifacts",
+    "review 後才 apply",
+    "缺口用 ingest 回寫 spec",
+  ], C.violet, 10);
+
+  tableSlide(p, 32, "SPECTRA ARTIFACTS", "Spectra demo 的重點是讓學生看懂每個 artifact 的責任", ["Artifact", "課堂要檢查什麼", "生醫加強點"], [
+    ["proposal", "為什麼要做、scope 多大、哪些不做", "不得包含臨床建議"],
+    ["spec", "input/output、acceptance criteria、edge cases", "PMID、not_found、review gate"],
+    ["design", "資料流、API、schema、錯誤處理", "source version 與 retrieval date"],
+    ["tasks", "小任務是否可獨立驗證", "先測 schema/golden file"],
+  ], C.violet, { widths: [170, 520, 400], rowH: 66, fontSize: 15 });
+
+  conceptSlide(p, 33, "SPECTRA REVIEW GATE", "Spectra 可以讓流程可見，但 biomedical gate 仍然要人工負責", [
+    "在 `/spectra:apply` 前，先 review spec 是否有資料源、not found rule 和 validation",
+    "任務執行中發現需求缺口時，不要讓 agent 直接補功能，先 `/spectra:ingest` 更新規格",
+    "若任務涉及 citation、trial status、gene symbol 或 clinical wording，要保留 `needs_review`",
+    "歸檔前確認 spec、tasks、測試輸出與 commit 都能互相追溯",
+  ], "不要交給工具", [
+    "clinical judgment",
+    "sensitive data",
+    "source authority",
+    "merge decision",
+  ], C.coral);
+
+  splitCodeSlide(p, 34, "ASK FOR SPEC", "先讓 agent 寫 spec，但要求它先問問題", "Prompt", `請不要開始寫程式。
 請先根據下列 biomedical tool idea 建立 SPEC.md。
 
 你必須先列出最多 8 個 clarification questions。
@@ -557,7 +609,7 @@ SPEC.md 必須包含：
     "spec 要包含驗證與 review",
   ], C.teal, 11);
 
-  splitCodeSlide(p, 31, "IMPLEMENT FROM SPEC", "讓 agent 實作時，要把 spec 變成 acceptance contract", "Prompt", `請依照 SPEC.md 實作最小版本。
+  splitCodeSlide(p, 35, "IMPLEMENT FROM SPEC", "讓 agent 實作時，要把 spec 變成 acceptance contract", "Prompt", `請依照 SPEC.md 實作最小版本。
 
 規則：
 - 只改 tasks.md 指定的檔案
@@ -577,7 +629,7 @@ SPEC.md 必須包含：
     "spec drift 要回寫",
   ], C.green, 11);
 
-  conceptSlide(p, 32, "SPEC DRIFT", "Spec drift 會讓 SDD 失效，所以規格要跟 commit 一起活著", [
+  conceptSlide(p, 36, "SPEC DRIFT", "Spec drift 會讓 SDD 失效，所以規格要跟 commit 一起活著", [
     "程式碼行為改了，SPEC.md 必須同步改",
     "測試暴露新邊界條件時，要補回 requirements 或 validation",
     "資料庫版本、API schema、source policy 改了，要記錄在 changelog",
@@ -589,7 +641,7 @@ SPEC.md 必須包含：
     "review gate",
   ], C.coral);
 
-  tableSlide(p, 33, "REVIEW CHECKLIST", "Biomedical spec review 的重點是可追溯、可驗證、可停止", ["檢查項目", "要問的問題", "不通過時"], [
+  tableSlide(p, 37, "REVIEW CHECKLIST", "Biomedical spec review 的重點是可追溯、可驗證、可停止", ["檢查項目", "要問的問題", "不通過時"], [
     ["Source", "允許資料源和版本寫清楚了嗎？", "補來源或縮小 scope"],
     ["Schema", "每個 output 欄位都有型別與允許值嗎？", "補 schema"],
     ["Not found", "找不到資料時會停止還是亂補？", "補 not_found rule"],
@@ -597,7 +649,7 @@ SPEC.md 必須包含：
     ["Validation", "有 sample fixtures 和命令可以重跑嗎？", "補 tests/golden file"],
   ], C.indigo, { widths: [170, 560, 360], rowH: 58, fontSize: 15 });
 
-  tableSlide(p, 34, "STUDENT EXERCISE", "學生要交的是 spec，不是看起來很厲害的 prompt", ["步驟", "交付物", "檢查"], [
+  tableSlide(p, 38, "STUDENT EXERCISE", "學生要交的是 spec，不是看起來很厲害的 prompt", ["步驟", "交付物", "檢查"], [
     ["1. Pick", "選一個工具：PubMed / gene / trial", "scope 是否夠小"],
     ["2. Clarify", "列 5 個 clarification questions", "是否問到資料源與邊界"],
     ["3. Specify", "填入 SPEC.md template", "schema、errors、validation 是否完整"],
@@ -605,7 +657,7 @@ SPEC.md 必須包含：
   ], C.green, { widths: [150, 520, 420], rowH: 70, fontSize: 15 });
 
   {
-    const slide = baseSlide(p, 35, "MATERIALS", "Lab bundle 包含一個範本與三個完整生醫工具 spec", C.violet);
+    const slide = baseSlide(p, 39, "MATERIALS", "Lab bundle 包含範本、三個完整 spec 與 Spectra demo prompt", C.violet);
     addSurface(slide, "lab-box", 92, 204, 500, 278, C.violetLight, C.violet);
     addText(slide, "lab-title", "Repo materials", { left: 126, top: 240, width: 430, height: 34 }, { fontSize: 24, bold: true, color: C.violet, typeface: EN_FONT });
     addBulletList(slide, "lab-list", [
@@ -613,7 +665,8 @@ SPEC.md 必須包含：
       "examples/pubmed-evidence-extractor/SPEC.md",
       "examples/gene-list-annotation-tool/SPEC.md",
       "examples/clinical-trial-summarizer/SPEC.md",
-    ], { left: 130, top: 304, width: 398, height: 120 }, { fontSize: 14, spaceAfter: 9, typeface: MONO });
+      "prompts/spectra_demo_prompt.md",
+    ], { left: 130, top: 304, width: 398, height: 130 }, { fontSize: 12, spaceAfter: 7, typeface: MONO });
     addSurface(slide, "src-box", 650, 204, 470, 278, C.white, C.line);
     addText(slide, "src-title", "Referenced sources", { left: 686, top: 240, width: 390, height: 34 }, { fontSize: 24, bold: true, color: C.indigo, typeface: EN_FONT });
     addBulletList(slide, "src-list", [
@@ -627,7 +680,7 @@ SPEC.md 必須包含：
   }
 
   {
-    const slide = baseSlide(p, 36, "WRAP-UP", "最後帶走五句話", C.indigo);
+    const slide = baseSlide(p, 40, "WRAP-UP", "最後帶走五句話", C.indigo);
     const lines = [
       ["1. Spec 不是文件崇拜，而是讓正確性可以被檢查。", C.indigo, C.indigoLight],
       ["2. 模糊需求要先問清楚，不能直接交給 agent 寫 code。", C.teal, C.tealLight],
