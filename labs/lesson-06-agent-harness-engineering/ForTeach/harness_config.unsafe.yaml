@@ -1,0 +1,33 @@
+agent:
+  tools:
+    - browser
+    - terminal
+    - file_write
+    - pubmed_search
+  read_paths:
+    - ./
+  write_paths:
+    - ./
+  network: true
+  memory:
+    enabled: true
+    store_phi: true
+  logging:
+    enabled: false
+    redact_phi: false
+    log_full_trajectory: false
+  state:
+    externalized: false
+    track_artifacts: false
+  observability:
+    component_map: false
+    experience_summary: false
+    decision_predictions: false
+  audit:
+    boundary_compliance: false
+    information_flow: false
+  verification:
+    require_citation_for_claims: false
+    run_csv_validation: false
+  human_review_required_if:
+    - low_confidence

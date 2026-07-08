@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "biomed-tools": {
+      "command": "python3",
+      "args": ["tools/biomed_mcp_server.py"],
+      "env": {
+        "ALLOWED_DOMAINS": "pubmed.ncbi.nlm.nih.gov,doi.org,genenames.org"
+      }
+    }
+  }
+}
+

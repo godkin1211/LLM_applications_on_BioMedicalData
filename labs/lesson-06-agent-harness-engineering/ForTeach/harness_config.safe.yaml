@@ -1,0 +1,49 @@
+agent:
+  tools:
+    - pubmed_search
+    - hgnc_lookup
+    - csv_validator
+  read_paths:
+    - data/deidentified/
+    - sources/
+  write_paths:
+    - outputs/
+    - logs/
+  denied_paths:
+    - data/phi/
+    - secrets/
+  network:
+    allowed_domains:
+      - pubmed.ncbi.nlm.nih.gov
+      - doi.org
+      - genenames.org
+  memory:
+    enabled: true
+    scope: project
+    store_phi: false
+    require_source: true
+  logging:
+    enabled: true
+    redact_phi: true
+    log_tool_calls: true
+    log_full_trajectory: true
+  state:
+    externalized: true
+    track_artifacts: true
+    track_verification_records: true
+    max_context_items: 12
+  observability:
+    component_map: true
+    experience_summary: true
+    decision_predictions: true
+  audit:
+    boundary_compliance: true
+    execution_fidelity: true
+    information_flow: true
+  verification:
+    require_citation_for_claims: true
+    run_csv_validation: true
+  human_review_required_if:
+    - clinical_action
+    - low_confidence
+    - contains_phi

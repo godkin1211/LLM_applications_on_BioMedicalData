@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "read": ["PROMPT.md", "IMPLEMENTATION_PLAN.md", "MEMORY.md", "sources/"],
+    "write": ["outputs/", "logs/"],
+    "deny": ["data/phi/", "secrets/"]
+  },
+  "tools": {
+    "allowed": ["pubmed_search", "hgnc_lookup", "csv_validator"],
+    "require_approval": ["network_search", "file_write"]
+  },
+  "logging": {
+    "enabled": true,
+    "redact_phi": true,
+    "log_full_trajectory": true
+  }
+}
+

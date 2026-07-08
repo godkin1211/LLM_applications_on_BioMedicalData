@@ -1,0 +1,13 @@
+Date,Product,Region,Quantity,UnitPrice,Salesperson
+2026-01-03,Laptop,North,12,38000,Alice
+2026-01-05,Mouse,South,80,650,Bob
+2026-01-06,Keyboard,East,45,1200,Carol
+2026-01-07,Monitor,West,18,7200,David
+2026-01-09,Laptop,South,8,38500,Alice
+2026-01-11,Mouse,North,95,650,Bob
+2026-01-13,Keyboard,West,40,1200,Carol
+2026-01-15,Monitor,East,22,7200,David
+2026-01-17,Laptop,East,0,39000,Alice
+2026-01-18,Mouse,South,-5,650,Bob
+2026-01-20,Monitor,North,16,7200,David
+2026-01-22,Keyboard,South,38,1200,Carol
