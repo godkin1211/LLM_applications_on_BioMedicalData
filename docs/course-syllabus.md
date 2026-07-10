@@ -581,17 +581,25 @@ _課程細綱版本：2026-07-05。對象為大學生、研究生與生醫研究
 | 項目 | 內容 |
 | --- | --- |
 | 時間 | 7/13 10:20-11:50 |
+| 投影片 | `slides/lesson-10-biomedical-hackathon-briefing.pptx` |
 | 教學目標 | 讓小組把專題問題縮小成可在下午完成的 agent workflow |
 | 核心問題 | 如何把有趣的研究問題縮成可 demo、可檢查、可解釋的最小版本 |
 
 專題方向：
 
-- Literature evidence table builder
-- Gene-drug-disease relation summarizer
-- Variant annotation evidence collector
-- Cohort eligibility criteria extractor
-- Dataset metadata and data dictionary assistant
-- Biomedical protocol or pipeline helper
+- Gene-drug-disease evidence atlas
+- Clinical trial eligibility criteria extractor
+- Public dataset metadata and data dictionary assistant
+- Variant evidence triage assistant
+- Bioinformatics workflow QA copilot
+
+Hackathon 規定：
+
+- 僅使用公開、合法存取或去識別資料；不得使用真實病歷、可識別資料或未授權資料
+- 一個 MVP 必須包含一個 input、一個 agent-assisted transform、一個 validation 或外部來源 check，以及一個 structured output
+- 每組必須保留 source inventory、log、status、human review boundary 與至少一個失敗或不確定案例
+- 找不到來源時必須使用 `not_found` 或 `needs_review`，不得以模型記憶補上 PMID、DOI、sample size 或 clinical conclusion
+- Agent 的 write / execute action 必須由小組成員確認；不得未經同意啟動 cloud run 或修改共享資源
 
 Scaffold 內容：
 
@@ -717,6 +725,7 @@ project/
 | `slides/lesson-04-desktop-agent-literature-evidence-workflow-animated.pptx` | Day 1 第 4 堂，文獻搜尋、evidence table、research notes | 已完成，40 頁動畫版 |
 | `demos/lesson-04-literature-evidence-workflow/` | Lesson 04 完整 demo：task spec、prompts、source inventory、evidence table、research note | 已完成 |
 | `slides/lesson-05-biomedical-evidence-table-hands-on.pptx` | Day 1 第 5 堂，desktop biomedical workflow hands-on lab | 已完成 |
+| `slides/lesson-10-biomedical-hackathon-briefing.pptx` | Day 3 Hackathon briefing，選題、規範、交付物、評分與 demo 格式 | 已完成，34 頁 |
 | `docs/supplement-baoyu-agent-practices.md` | 宝玉 LLM / agent 實務分享延伸教材：harness、context、skills、多 agent、verification activities | 已完成 |
 | `docs/course-syllabus.md` | 本課程詳細課綱 | 本文件 |
 
@@ -727,7 +736,7 @@ project/
 3. Spec-driven development for biomedical workflows
 4. Harness engineering for AI agents
 5. Loop engineering for biomedical agents
-6. Biomedical hackathon scaffold and demo rubric
+6. Biomedical hackathon scaffold and demo rubric（已完成）
 
 ## 教學設計原則
 
