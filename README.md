@@ -11,7 +11,7 @@ The course is designed for undergraduate students, graduate students, and biomed
 | `slides/course-introduction-ai-agent-biomedical-workflow.pptx` | Course introduction | Opening session; scope, expectations, and biomedical workflow framing |
 | `slides/lesson-02-ai-agents-vibe-coding-desktop-utilities.pptx` | Introduction to AI agents, vibe coding, and desktop utilities | Agent concepts, workflow thinking, and practical desktop-agent use |
 | `slides/lesson-03-llm-basics-for-agent-users.pptx` | LLM basics for agent users | Tokens, context, embeddings, hallucination, tool use, reproducibility, and task specs |
-| `slides/lesson-04-desktop-agent-literature-evidence-workflow.pptx` | Desktop agent literature evidence workflow | Literature search, source inventory, evidence table, citation checks, and research notes |
+| `slides/lesson-04-desktop-agent-literature-evidence-workflow-animated.pptx` | Desktop agent literature evidence workflow | 40-slide animated lesson covering reproducible search, source triage, evidence tables, citation checks, and research notes |
 | `slides/lesson-05-biomedical-evidence-table-hands-on.pptx` | Biomedical evidence table hands-on | Hands-on task spec, evidence table validation, and research-note workflow |
 
 ## Repository layout

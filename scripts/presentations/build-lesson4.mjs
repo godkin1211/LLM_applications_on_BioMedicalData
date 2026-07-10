@@ -9,7 +9,7 @@ const FINAL_PPTX = path.join(REPO_ROOT, "slides", "lesson-04-desktop-agent-liter
 
 const W = 1280;
 const H = 720;
-const TOTAL = 22;
+const TOTAL = 40;
 const frame = { left: 76, top: 58, width: 1128, height: 594 };
 
 const C = {
@@ -128,6 +128,36 @@ function addFooter(slide, n, dark = false) {
   }, { fontSize: 12, color: dark ? "#B7C0C7" : C.secondary, typeface: EN_FONT });
 }
 
+function sectionForSlide(n) {
+  if (n <= 6) return ["FRAME", C.indigo];
+  if (n <= 12) return ["SEARCH", C.teal];
+  if (n <= 18) return ["EXTRACT", C.amber];
+  if (n <= 21) return ["VERIFY", C.coral];
+  if (n <= 29) return ["SEARCH+", C.teal];
+  if (n <= 39) return ["HARDEN", C.teal];
+  return ["NEXT", C.indigo];
+}
+
+function addSlideChrome(slide, n, color, dark = false) {
+  slide.shapes.add({
+    geometry: "rect",
+    name: `accent-rail-${n}`,
+    position: { left: 0, top: 0, width: 10, height: H },
+    fill: color,
+    line: { style: "solid", fill: color, width: 0 },
+  });
+  const [section] = sectionForSlide(n);
+  addText(slide, `section-${n}`, section, { left: 1030, top: 58, width: 174, height: 24 }, {
+    fontSize: 12,
+    bold: true,
+    color: dark ? "#AEB8C0" : color,
+    alignment: "right",
+    typeface: EN_FONT,
+  });
+  addLine(slide, `progress-track-${n}`, 930, 681, 1204, 681, dark ? "#3A4650" : C.line, 2);
+  addLine(slide, `progress-fill-${n}`, 930, 681, 930 + 274 * (n / TOTAL), 681, color, 3);
+}
+
 function addBulletList(slide, name, items, position, options = {}) {
   const shape = slide.shapes.add({
     geometry: "textbox",
@@ -161,6 +191,7 @@ function notes(slide, text) {
 function baseSlide(p, n, eyebrow, title, color = C.indigo) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
+  addSlideChrome(slide, n, color);
   addEyebrow(slide, eyebrow, color);
   addTitle(slide, title);
   addFooter(slide, n);
@@ -192,6 +223,7 @@ function tableHeader(slide, labels, xs, y, widths, color = C.indigo) {
 function titleSlide(p) {
   const slide = p.slides.add();
   slide.background.fill = C.bg;
+  addSlideChrome(slide, 1, C.teal);
   addEyebrow(slide, "LESSON 04  |  DESKTOP AGENT WORKFLOW", C.teal);
   addText(slide, "title", "Literature search to evidence table", {
     left: 78,
@@ -308,32 +340,33 @@ function slide4(p) {
 }
 
 function slide5(p) {
-  const slide = baseSlide(p, 5, "DEMO FILES", "Demo 會留下五個可以檢查的檔案", C.amber);
+  const slide = baseSlide(p, 5, "DEMO FILES", "Demo 會留下七個可以檢查的檔案", C.amber);
   const files = [
     ["task_spec.md", "研究問題、欄位、規則"],
     ["prompts.md", "設計過的 agent prompts"],
+    ["query_log.demo.md", "query ladder、排除條件、停止規則"],
     ["source_inventory.csv", "PMID / DOI / title / n"],
     ["evidence_table.demo.csv", "可審核 evidence rows"],
+    ["evidence_review.demo.md", "逐列查證與修正決策"],
     ["research_note.demo.md", "摘要、限制、下一步"],
   ];
   files.forEach(([file, desc], i) => {
-    const y = 178 + i * 72;
-    addSurface(slide, `file-${i}`, 146, y, 400, 50, i % 2 === 0 ? C.white : C.grayBg, C.line);
-    addText(slide, `file-name-${i}`, file, { left: 174, top: y + 13, width: 260, height: 24 }, {
-      fontSize: 20,
+    const y = 166 + i * 56;
+    addSurface(slide, `file-${i}`, 132, y, 442, 42, i % 2 === 0 ? C.white : C.grayBg, C.line);
+    addText(slide, `file-name-${i}`, file, { left: 154, top: y + 10, width: 390, height: 22 }, {
+      fontSize: 17,
       bold: true,
-      color: [C.indigo, C.teal, C.coral, C.amber, C.secondary][i],
+      color: [C.indigo, C.teal, C.coral, C.amber, C.secondary, C.coral, C.indigo][i],
       typeface: EN_FONT,
     });
-    addText(slide, `file-desc-${i}`, desc, { left: 620, top: y + 13, width: 420, height: 24 }, {
-      fontSize: 21,
+    addText(slide, `file-desc-${i}`, desc, { left: 642, top: y + 10, width: 430, height: 22 }, {
+      fontSize: 18,
       color: C.secondary,
     });
-    addLine(slide, `file-line-${i}`, 560, y + 25, 604, y + 25, C.line, 1.2);
   });
   addText(slide, "path", "demos/lesson-04-literature-evidence-workflow/", {
     left: 260,
-    top: 580,
+    top: 584,
     width: 760,
     height: 30,
   }, { fontSize: 21, bold: true, color: C.ink, alignment: "center", typeface: MONO });
@@ -352,7 +385,7 @@ function slide6(p) {
   ];
   steps.forEach(([num, label, color], i) => {
     const x = 80 + i * 190;
-    if (i > 0) addLine(slide, `flow-line-${i}`, x - 54, 360, x - 8, 360, C.line, 1.4);
+    if (i > 0) addLine(slide, `flow-line-${i}`, x - 52, 360, x, 360, C.line, 1.4);
     addNode(slide, `step-${i}`, `${num}\n${label}`, x, 308, 138, 104, color, color === C.amber ? C.amberLight : C.white, 17, EN_FONT);
   });
   addText(slide, "bottom", "每一步都有自己的 artifact；不要讓 agent 一次完成所有事。", {
@@ -497,13 +530,15 @@ Rules:
 - Use literature_evidence only when the source supports the claim.
 - Use molecular_context when the source is biology, not treatment efficacy.
 - Use model_inference when no PMID or DOI supports the statement.
-- Every row starts with needs_human_review=TRUE.`, 108, 182, 1064, 404, 17);
+- Every row starts with needs_human_review=TRUE.`, 108, 182, 1064, 404, 18);
   notes(slide, "這張是 evidence extraction prompt。重點是 evidence_kind 和 model_inference 欄位。");
 }
 
 function slide12(p) {
   const slide = baseSlide(p, 12, "DEMO TABLE", "一份好的 evidence table 應該讓錯誤容易被看見", C.amber);
-  tableHeader(slide, ["gene", "drug", "PMID", "n", "evidence kind", "status"], [96, 204, 354, 474, 584, 810], 188, [80, 130, 90, 60, 180, 170], C.amber);
+  const xs = [96, 230, 430, 570, 690, 940];
+  const widths = [120, 180, 130, 100, 220, 210];
+  tableHeader(slide, ["gene", "drug", "PMID", "n", "evidence kind", "status"], xs, 188, widths, C.amber);
   const rows = [
     ["EGFR", "osimertinib", "29151359", "556", "literature_evidence", "supported"],
     ["ALK", "crizotinib", "25470694", "343", "literature_evidence", "supported"],
@@ -515,7 +550,7 @@ function slide12(p) {
     const statusColor = row[5] === "needs_source" ? C.coral : C.teal;
     addSurface(slide, `ev-row-${i}`, 78, y - 8, 1124, 46, i % 2 === 0 ? C.white : C.grayBg, row[5] === "needs_source" ? C.coral : C.line);
     row.forEach((cell, j) => {
-      addText(slide, `ev-${i}-${j}`, cell, { left: [96, 204, 354, 474, 584, 810][j], top: y + 1, width: [80, 130, 90, 80, 184, 170][j], height: 24 }, {
+      addText(slide, `ev-${i}-${j}`, cell, { left: xs[j], top: y + 1, width: widths[j], height: 24 }, {
         fontSize: 16,
         bold: j === 0 || j === 5,
         color: j === 5 ? statusColor : (j === 2 ? C.indigo : C.secondary),
@@ -612,15 +647,16 @@ function slide16(p) {
   ];
   fixes.forEach(([head, copy], i) => {
     const x = 134 + i * 360;
-    addSurface(slide, `fix-${i}`, x, 424, 290, 104, i === 0 ? C.coralLight : C.white, i === 1 ? C.teal : (i === 2 ? C.amber : C.coral));
-    addText(slide, `fix-head-${i}`, head, { left: x + 24, top: 448, width: 120, height: 28 }, {
+    addSurface(slide, `fix-${i}`, x, 414, 290, 138, i === 0 ? C.coralLight : C.white, i === 1 ? C.teal : (i === 2 ? C.amber : C.coral));
+    addText(slide, `fix-head-${i}`, head, { left: x + 24, top: 440, width: 220, height: 28 }, {
       fontSize: 22,
       bold: true,
       color: i === 0 ? C.coral : (i === 1 ? C.teal : C.amber),
     });
-    addText(slide, `fix-copy-${i}`, copy, { left: x + 24, top: 486, width: 230, height: 32 }, {
-      fontSize: 18,
+    addText(slide, `fix-copy-${i}`, copy, { left: x + 24, top: 486, width: 242, height: 56 }, {
+      fontSize: 17,
       color: C.secondary,
+      lineSpacing: 1.12,
     });
   });
   notes(slide, "TP53 row 是教學用的壞例子，目標是示範 evidence_kind 和 needs_source 的價值。");
@@ -637,7 +673,7 @@ function slide17(p) {
   ];
   steps.forEach(([head, copy], i) => {
     const x = 110 + i * 214;
-    if (i > 0) addLine(slide, `check-line-${i}`, x - 54, 356, x - 12, 356, C.line, 1.2);
+    if (i > 0) addLine(slide, `check-line-${i}`, x - 58, 356, x, 356, C.line, 1.2);
     addNode(slide, `check-step-${i}`, `${head}\n${copy}`, x, 306, 156, 100, [C.indigo, C.teal, C.teal, C.amber, C.coral][i], i === 4 ? C.coralLight : C.white, 17, EN_FONT);
   });
   addText(slide, "bottom", "檢查失敗不是失敗；沒有標記檢查失敗才是失敗。", {
@@ -766,13 +802,622 @@ function slide21(p) {
 function slide22(p) {
   const slide = p.slides.add();
   slide.background.fill = C.dark;
+  addSlideChrome(slide, 22, C.teal, true);
+  addText(slide, "chapter", "DEEP DIVE 01", { left: 92, top: 104, width: 400, height: 30 }, {
+    fontSize: 16,
+    bold: true,
+    color: "#75D7CF",
+    typeface: EN_FONT,
+  });
+  addText(slide, "chapter-number", "01", { left: 84, top: 156, width: 190, height: 150 }, {
+    fontSize: 112,
+    bold: true,
+    color: "#3B4B55",
+    typeface: EN_FONT,
+  });
+  addText(slide, "title", "Make the search reproducible", { left: 278, top: 176, width: 850, height: 64 }, {
+    fontSize: 43,
+    bold: true,
+    color: C.white,
+    typeface: EN_FONT,
+  });
+  addText(slide, "subtitle", "從問題類型、query ladder 到 search log，讓別人知道你找過什麼、為何停下來", {
+    left: 284,
+    top: 264,
+    width: 830,
+    height: 62,
+  }, { fontSize: 24, bold: true, color: "#DDE4E8" });
+  const takeaways = ["question type", "query ladder", "stopping rule"];
+  takeaways.forEach((label, i) => {
+    addNode(slide, `deep-search-${i}`, label, 286 + i * 274, 420, 222, 60, C.teal, C.tealLight, 18, EN_FONT);
+  });
+  addFooter(slide, 22, true);
+  notes(slide, "這是新增的深度模組分隔頁。先告訴學生：可重現搜尋不是一條完美 query，而是一串可解釋的搜尋決策。");
+}
+
+function slide23(p) {
+  const slide = baseSlide(p, 23, "QUESTION TYPE", "先判斷問題類型，才知道需要多嚴格的證據", C.teal);
+  const types = [
+    ["Explore", "有哪些可能關係？", "允許廣搜與候選線索\n輸出 hypothesis backlog", C.indigo, C.indigoLight],
+    ["Map", "目前有哪些研究？", "要求來源完整與分類\n輸出 evidence landscape", C.teal, C.tealLight],
+    ["Decide", "證據足以支持決策嗎？", "要求預先標準與風險評估\n輸出 review-ready synthesis", C.coral, C.coralLight],
+  ];
+  types.forEach(([head, question, copy, color, fill], i) => {
+    const x = 96 + i * 386;
+    addSurface(slide, `qtype-${i}`, x, 202, 330, 300, fill, color);
+    addText(slide, `qtype-head-${i}`, head, { left: x + 30, top: 230, width: 150, height: 34 }, {
+      fontSize: 28,
+      bold: true,
+      color,
+      typeface: EN_FONT,
+    });
+    addText(slide, `qtype-question-${i}`, question, { left: x + 30, top: 300, width: 270, height: 54 }, {
+      fontSize: 22,
+      bold: true,
+      color: C.ink,
+    });
+    addText(slide, `qtype-copy-${i}`, copy, { left: x + 30, top: 404, width: 270, height: 60 }, {
+      fontSize: 18,
+      color: C.secondary,
+      lineSpacing: 1.18,
+    });
+  });
+  addText(slide, "bottom", "本課 Demo 是 Map 型問題；不應被誤用成臨床決策建議。", {
+    left: 190,
+    top: 560,
+    width: 900,
+    height: 34,
+  }, { fontSize: 24, bold: true, color: C.coral, alignment: "center" });
+  notes(slide, "把問題分成 Explore、Map、Decide，目的不是創造新術語，而是讓學生把 evidence threshold 說清楚。");
+}
+
+function slide24(p) {
+  const slide = baseSlide(p, 24, "QUESTION FRAME", "用 PICO / PECO 當拆題鏡頭，不要把它當固定模板", C.indigo);
+  const blocks = [
+    ["P", "Population", "advanced NSCLC\n或 lung adenocarcinoma", C.indigo, C.indigoLight],
+    ["I / E", "Intervention / Exposure", "osimertinib、crizotinib\n或 gene alteration", C.teal, C.tealLight],
+    ["C", "Comparator", "standard EGFR-TKI\n或 chemotherapy", C.amber, C.amberLight],
+    ["O", "Outcome", "PFS、response\n或 molecular context", C.coral, C.coralLight],
+  ];
+  blocks.forEach(([letter, head, copy, color, fill], i) => {
+    const x = 84 + i * 300;
+    addSurface(slide, `pico-${i}`, x, 212, 252, 250, fill, color);
+    addText(slide, `pico-letter-${i}`, letter, { left: x + 24, top: 238, width: 76, height: 52 }, {
+      fontSize: 42,
+      bold: true,
+      color,
+      typeface: EN_FONT,
+    });
+    addText(slide, `pico-head-${i}`, head, { left: x + 24, top: 310, width: 204, height: 42 }, {
+      fontSize: 19,
+      bold: true,
+      color: C.ink,
+      typeface: EN_FONT,
+    });
+    addText(slide, `pico-copy-${i}`, copy, { left: x + 24, top: 382, width: 204, height: 58 }, {
+      fontSize: 17,
+      color: C.secondary,
+      lineSpacing: 1.16,
+    });
+  });
+  addText(slide, "rule", "對 molecular profiling 問題，I / C 可能不存在；不要硬填不存在的 comparator。", {
+    left: 154,
+    top: 548,
+    width: 972,
+    height: 40,
+  }, { fontSize: 23, bold: true, color: C.indigo, alignment: "center" });
+  notes(slide, "示範 PICO 與 PECO 的實用定位：協助拆題，不是要求每個研究問題都有四個完整欄位。");
+}
+
+function slide25(p) {
+  const slide = baseSlide(p, 25, "QUERY LADDER", "不要追求一條神奇 query；建立可迭代的 query ladder", C.teal);
+  const levels = [
+    ["Q1  Broad", "NSCLC AND (EGFR OR ALK OR TP53)", "盤點詞彙與研究類型"],
+    ["Q2  Treatment", "NSCLC AND EGFR AND osimertinib AND trial", "定位治療效益研究"],
+    ["Q3  Molecular", "lung adenocarcinoma AND molecular profiling", "補足 molecular context"],
+    ["Q4  Rescue", "TP53 AND NSCLC AND outcome AND targeted therapy", "針對 needs_source 缺口"],
+  ];
+  levels.forEach(([head, query, use], i) => {
+    const y = 172 + i * 98;
+    if (i > 0) addLine(slide, `ladder-line-${i}`, 214, y - 42, 214, y, C.line, 2);
+    addNode(slide, `ladder-head-${i}`, head, 104, y, 220, 56, [C.indigo, C.teal, C.amber, C.coral][i], C.white, 17, EN_FONT);
+    addSurface(slide, `ladder-query-bg-${i}`, 360, y, 520, 56, i % 2 === 0 ? C.white : C.grayBg, C.line);
+    addText(slide, `ladder-query-${i}`, query, { left: 384, top: y + 16, width: 474, height: 24 }, {
+      fontSize: 17,
+      bold: true,
+      color: C.ink,
+      typeface: MONO,
+    });
+    addText(slide, `ladder-use-${i}`, use, { left: 924, top: y + 15, width: 256, height: 26 }, {
+      fontSize: 18,
+      color: C.secondary,
+    });
+  });
+  addText(slide, "bottom", "每次改 query 都要記錄：改了什麼、為什麼、結果是否更接近問題。", {
+    left: 160,
+    top: 590,
+    width: 960,
+    height: 34,
+  }, { fontSize: 23, bold: true, color: C.teal, alignment: "center" });
+  notes(slide, "Query ladder 讓 agent 的搜尋行為可重現。實際搜尋時還要記錄日期、資料庫與 filters。");
+}
+
+function slide26(p) {
+  const slide = baseSlide(p, 26, "ELIGIBILITY RULES", "納入與排除條件要在看結果之前先寫下來", C.amber);
+  const columns = [
+    ["Include", ["NSCLC 或 lung adenocarcinoma", "可回查 PMID / DOI", "研究類型與問題相符", "來源能支持至少一個 narrow claim"], C.teal, C.tealLight],
+    ["Exclude / park", ["只有二手摘要且無原始來源", "疾病或介入不在範圍", "只有背景敘述、無可抽取結果", "同一研究重複報告，先標記 linkage"], C.coral, C.coralLight],
+  ];
+  columns.forEach(([head, items, color, fill], i) => {
+    const x = 124 + i * 570;
+    addSurface(slide, `eligibility-${i}`, x, 206, 466, 304, fill, color);
+    addText(slide, `eligibility-head-${i}`, head, { left: x + 34, top: 238, width: 300, height: 34 }, {
+      fontSize: 29,
+      bold: true,
+      color,
+      typeface: EN_FONT,
+    });
+    addBulletList(slide, `eligibility-items-${i}`, items, { left: x + 64, top: 316, width: 352, height: 150 }, {
+      fontSize: 20,
+      spaceAfter: 9,
+    });
+  });
+  addText(slide, "bottom", "排除不是刪除：保留 reason，才能重跑、審查與解釋搜尋偏差。", {
+    left: 170,
+    top: 566,
+    width: 940,
+    height: 34,
+  }, { fontSize: 23, bold: true, color: C.amber, alignment: "center" });
+  notes(slide, "先寫 eligibility rules，可以降低看到喜歡的結果後才改標準的風險。");
+}
+
+function slide27(p) {
+  const slide = baseSlide(p, 27, "SEARCH LOG", "Search log 要留下決策，不只是複製 query", C.indigo);
+  tableHeader(slide, ["run", "query focus", "change", "decision"], [92, 184, 468, 760], 178, [70, 250, 254, 398], C.indigo);
+  const rows = [
+    ["01", "broad gene map", "baseline search", "保留常見詞彙與候選 study types"],
+    ["02", "EGFR treatment", "add drug + trial", "進入 treatment evidence inventory"],
+    ["03", "ALK treatment", "change gene + comparator", "檢查同類問題是否可重用 schema"],
+    ["04", "TP53 rescue", "add outcome terms", "仍無 exact source 時回報 not_found"],
+  ];
+  rows.forEach((row, i) => {
+    const y = 216 + i * 76;
+    addSurface(slide, `log-row-${i}`, 76, y, 1128, 58, i % 2 === 0 ? C.white : C.grayBg, C.line);
+    row.forEach((cell, j) => {
+      addText(slide, `log-${i}-${j}`, cell, { left: [92, 184, 468, 760][j], top: y + 15, width: [70, 250, 254, 398][j], height: 28 }, {
+        fontSize: j === 0 ? 17 : 18,
+        bold: j === 0,
+        color: j === 0 ? C.indigo : C.secondary,
+        typeface: j === 0 ? EN_FONT : FONT,
+        alignment: j === 0 ? "center" : "left",
+      });
+    });
+  });
+  addText(slide, "stop", "Stop rule: 新 query 不再增加可驗證來源，或需要付費全文／專家判讀時停下來。", {
+    left: 150,
+    top: 548,
+    width: 980,
+    height: 48,
+  }, { fontSize: 22, bold: true, color: C.coral, alignment: "center" });
+  notes(slide, "Search log 不需要記錄假精確的 hit count；重要的是資料庫、日期、query、filters 與決策。");
+}
+
+function slide28(p) {
+  const slide = baseSlide(p, 28, "SOURCE DEPTH", "不同來源層級能支持的欄位不同", C.teal);
+  const sources = [
+    ["Record", "title / PMID / DOI / year", "只能確認書目存在", C.indigo],
+    ["Abstract", "design / sample / main result", "適合初步 inventory", C.teal],
+    ["Full text", "methods / subgroup / limitation", "用於 exact claim review", C.amber],
+    ["Supplement / registry", "protocol / endpoints / extra tables", "解決 denominator 與版本問題", C.coral],
+  ];
+  sources.forEach(([head, fields, role, color], i) => {
+    const y = 178 + i * 94;
+    addNode(slide, `source-depth-${i}`, head, 104, y, 214, 58, color, C.white, 19, EN_FONT);
+    addText(slide, `source-fields-${i}`, fields, { left: 370, top: y + 8, width: 330, height: 42 }, {
+      fontSize: 19,
+      bold: true,
+      color: C.ink,
+      typeface: EN_FONT,
+    });
+    addText(slide, `source-role-${i}`, role, { left: 760, top: y + 14, width: 390, height: 30 }, {
+      fontSize: 19,
+      color: C.secondary,
+    });
+  });
+  addText(slide, "bottom", "不要讓 abstract-only workflow 產生 full-text 級別的確定語氣。", {
+    left: 220,
+    top: 576,
+    width: 840,
+    height: 34,
+  }, { fontSize: 24, bold: true, color: C.teal, alignment: "center" });
+  notes(slide, "這張不是 evidence hierarchy，而是 source depth：不同層級能抽取與驗證的欄位不同。");
+}
+
+function slide29(p) {
+  const slide = baseSlide(p, 29, "SOURCE TRIAGE", "候選來源先看相關性與可驗證性，再決定下一步", C.coral);
+  const quadrants = [
+    ["HIGH relevance\nHIGH verifiability", "優先抽取\n建立 evidence row", C.teal, C.tealLight],
+    ["HIGH relevance\nLOW verifiability", "保留候選\n尋找全文或替代來源", C.amber, C.amberLight],
+    ["LOW relevance\nHIGH verifiability", "可作背景\n不得升級成核心 claim", C.indigo, C.indigoLight],
+    ["LOW relevance\nLOW verifiability", "排除並記錄 reason", C.coral, C.coralLight],
+  ];
+  quadrants.forEach(([head, action, color, fill], i) => {
+    const x = 126 + (i % 2) * 540;
+    const y = 198 + Math.floor(i / 2) * 172;
+    addSurface(slide, `triage-${i}`, x, y, 454, 132, fill, color);
+    addText(slide, `triage-head-${i}`, head, { left: x + 28, top: y + 22, width: 210, height: 52 }, {
+      fontSize: 19,
+      bold: true,
+      color,
+      typeface: EN_FONT,
+      lineSpacing: 1.08,
+    });
+    addText(slide, `triage-action-${i}`, action, { left: x + 266, top: y + 28, width: 154, height: 62 }, {
+      fontSize: 18,
+      bold: true,
+      color: C.ink,
+      lineSpacing: 1.12,
+    });
+  });
+  addText(slide, "bottom", "Triage 只決定處理順序，不等於研究品質評分。", {
+    left: 250,
+    top: 566,
+    width: 780,
+    height: 34,
+  }, { fontSize: 23, bold: true, color: C.coral, alignment: "center" });
+  notes(slide, "學生容易把是否相關與研究品質混在一起。這張只處理候選來源的 workflow triage。");
+}
+
+function slide30(p) {
+  const slide = p.slides.add();
+  slide.background.fill = C.dark;
+  addSlideChrome(slide, 30, C.amber, true);
+  addText(slide, "chapter", "DEEP DIVE 02", { left: 92, top: 104, width: 400, height: 30 }, {
+    fontSize: 16,
+    bold: true,
+    color: "#F0C765",
+    typeface: EN_FONT,
+  });
+  addText(slide, "chapter-number", "02", { left: 84, top: 156, width: 190, height: 150 }, {
+    fontSize: 112,
+    bold: true,
+    color: "#3B4B55",
+    typeface: EN_FONT,
+  });
+  addText(slide, "title", "Make each row defensible", { left: 278, top: 176, width: 850, height: 64 }, {
+    fontSize: 43,
+    bold: true,
+    color: C.white,
+    typeface: EN_FONT,
+  });
+  addText(slide, "subtitle", "把長句拆成 atomic claim，再檢查 study type、sample_n、entity 與衝突證據", {
+    left: 284,
+    top: 264,
+    width: 830,
+    height: 62,
+  }, { fontSize: 24, bold: true, color: "#DDE4E8" });
+  ["atomic claim", "schema checks", "safety gate"].forEach((label, i) => {
+    addNode(slide, `deep-row-${i}`, label, 286 + i * 274, 420, 222, 60, C.amber, C.amberLight, 18, EN_FONT);
+  });
+  addFooter(slide, 30, true);
+  notes(slide, "第二個深度模組從搜尋轉向 evidence row 的品質控制。");
+}
+
+function slide31(p) {
+  const slide = baseSlide(p, 31, "ATOMIC CLAIM", "一列只放一個可以被來源支持或否定的 claim", C.amber);
+  addSurface(slide, "claim-bad", 112, 180, 1056, 92, C.coralLight, C.coral);
+  addText(slide, "claim-bad-text", "EGFR、ALK 與 TP53 都和 NSCLC 有關，標靶治療有效，而且某些突變預後較差。", {
+    left: 150,
+    top: 210,
+    width: 980,
+    height: 34,
+  }, { fontSize: 23, bold: true, color: C.coral, alignment: "center" });
+  const rows = [
+    ["Claim A", "EGFR-mutated advanced NSCLC", "osimertinib improves PFS vs comparator", C.teal],
+    ["Claim B", "ALK-positive advanced NSCLC", "crizotinib improves PFS vs chemotherapy", C.indigo],
+    ["Claim C", "TP53 + targeted therapy outcome", "needs source; do not merge with A or B", C.amber],
+  ];
+  rows.forEach(([label, scope, claim, color], i) => {
+    const y = 332 + i * 76;
+    addNode(slide, `atomic-label-${i}`, label, 112, y, 150, 52, color, C.white, 17, EN_FONT);
+    addText(slide, `atomic-scope-${i}`, scope, { left: 306, top: y + 14, width: 330, height: 28 }, {
+      fontSize: 18,
+      bold: true,
+      color: C.ink,
+      typeface: EN_FONT,
+    });
+    addText(slide, `atomic-claim-${i}`, claim, { left: 680, top: y + 14, width: 460, height: 28 }, {
+      fontSize: 18,
+      color: C.secondary,
+      typeface: EN_FONT,
+    });
+  });
+  notes(slide, "先示範一個不可查證的長句，再拆成三個 atomic claims。每列都可有自己的 source、status 與 review note。");
+}
+
+function slide32(p) {
+  const slide = baseSlide(p, 32, "EVIDENCE TAXONOMY", "五種 evidence_kind 對應五種處理方式", C.teal);
+  const kinds = [
+    ["literature_evidence", "來源直接支持 exact claim", "可進 synthesis", C.teal, C.tealLight],
+    ["molecular_context", "支持生物背景，不支持療效", "限制語氣", C.indigo, C.indigoLight],
+    ["conflicting", "來源間方向或條件不一致", "保留並分層", C.amber, C.amberLight],
+    ["not_found", "完成合理搜尋仍無來源", "回報缺口", C.secondary, C.grayBg],
+    ["model_inference", "模型推測且無可查來源", "隔離、不可升級", C.coral, C.coralLight],
+  ];
+  kinds.forEach(([kind, meaning, action, color, fill], i) => {
+    const x = i < 3 ? 70 + i * 400 : 270 + (i - 3) * 400;
+    const y = i < 3 ? 202 : 404;
+    addSurface(slide, `kind-${i}`, x, y, 342, 142, fill, color);
+    addText(slide, `kind-name-${i}`, kind, { left: x + 22, top: y + 22, width: 292, height: 28 }, {
+      fontSize: 18,
+      bold: true,
+      color,
+      typeface: MONO,
+      alignment: "center",
+    });
+    addText(slide, `kind-meaning-${i}`, meaning, { left: x + 24, top: y + 66, width: 294, height: 34 }, {
+      fontSize: 17,
+      color: C.ink,
+      alignment: "center",
+    });
+    addText(slide, `kind-action-${i}`, action, { left: x + 24, top: y + 108, width: 294, height: 24 }, {
+      fontSize: 16,
+      bold: true,
+      color,
+      alignment: "center",
+    });
+  });
+  notes(slide, "Evidence taxonomy 不只是標籤；每個 evidence_kind 都要觸發不同的 downstream action。");
+}
+
+function slide33(p) {
+  const slide = baseSlide(p, 33, "SAMPLE SIZE", "sample_n 最常見的錯誤，是抄對數字卻抄錯 denominator", C.coral);
+  const stages = ["screened", "randomized", "treated", "analyzed"];
+  stages.forEach((stage, i) => {
+    const x = 104 + i * 286;
+    if (i > 0) addLine(slide, `sample-line-${i}`, x - 82, 304, x, 304, C.line, 2);
+    addNode(slide, `sample-stage-${i}`, `${stage}\nn = ?`, x, 260, 204, 88, [C.indigo, C.teal, C.amber, C.coral][i], C.white, 18, EN_FONT);
+  });
+  const rules = [
+    ["Outcome claim", "使用實際分析 population 的 denominator"],
+    ["Trial description", "可記 randomized n，但要標清楚欄位語意"],
+    ["Abstract unclear", "sample_n = UNKNOWN，並在 source_note 記原因"],
+  ];
+  rules.forEach(([head, copy], i) => {
+    const y = 408 + i * 58;
+    addText(slide, `sample-rule-head-${i}`, head, { left: 180, top: y, width: 220, height: 26 }, {
+      fontSize: 19,
+      bold: true,
+      color: [C.indigo, C.teal, C.coral][i],
+      typeface: EN_FONT,
+    });
+    addText(slide, `sample-rule-copy-${i}`, copy, { left: 430, top: y, width: 700, height: 26 }, {
+      fontSize: 19,
+      color: C.secondary,
+    });
+  });
+  notes(slide, "提醒學生 sample_n 不是單一真值；它必須和 claim、analysis population 與欄位定義對齊。");
+}
+
+function slide34(p) {
+  const slide = baseSlide(p, 34, "STUDY TYPE MISMATCH", "研究設計決定 claim 能走多遠", C.indigo);
+  const rows = [
+    ["Randomized trial", "比較介入結果", "可描述該研究中的 comparative outcome", C.teal],
+    ["Observational cohort", "關聯與自然病程", "不可自動改寫成因果療效", C.indigo],
+    ["Molecular profiling", "alteration landscape", "不可直接產生 treatment recommendation", C.amber],
+    ["Narrative review", "背景與線索", "回到 primary source 再建立核心 row", C.coral],
+  ];
+  tableHeader(slide, ["study type", "what it measures", "claim boundary"], [104, 392, 706], 182, [250, 274, 462], C.indigo);
+  rows.forEach(([type, measures, boundary, color], i) => {
+    const y = 224 + i * 82;
+    addSurface(slide, `study-row-${i}`, 82, y, 1120, 62, i % 2 === 0 ? C.white : C.grayBg, C.line);
+    addText(slide, `study-type-${i}`, type, { left: 104, top: y + 17, width: 250, height: 28 }, {
+      fontSize: 19,
+      bold: true,
+      color,
+      typeface: EN_FONT,
+    });
+    addText(slide, `study-measures-${i}`, measures, { left: 392, top: y + 17, width: 274, height: 28 }, {
+      fontSize: 19,
+      color: C.secondary,
+    });
+    addText(slide, `study-boundary-${i}`, boundary, { left: 706, top: y + 17, width: 456, height: 28 }, {
+      fontSize: 18,
+      color: C.ink,
+    });
+  });
+  addText(slide, "bottom", "先判 study type，再讓 agent 寫 conclusion。", {
+    left: 310,
+    top: 574,
+    width: 660,
+    height: 34,
+  }, { fontSize: 24, bold: true, color: C.indigo, alignment: "center" });
+  notes(slide, "這張專門處理常見 overclaim：把 molecular context 或 observational association 改寫成治療結論。");
+}
+
+function slide35(p) {
+  const slide = baseSlide(p, 35, "ENTITY NORMALIZATION", "保留原文，同時建立可比較的 normalized 欄位", C.teal);
+  tableHeader(slide, ["raw text", "normalized field", "review note"], [106, 420, 772], 184, [280, 316, 380], C.teal);
+  const rows = [
+    ["P53", "gene_symbol = TP53", "保留 raw text，避免 silently rewrite"],
+    ["lung cancer", "disease_scope = NSCLC?", "來源未指明時標 needs_review"],
+    ["EGFR-TKI", "drug_class = EGFR-TKI", "不要猜成特定藥物"],
+    ["EGFR exon 19 deletion", "variant_text + normalized term", "版本與轉錄本另欄處理"],
+  ];
+  rows.forEach((row, i) => {
+    const y = 226 + i * 82;
+    addSurface(slide, `norm-row-${i}`, 82, y, 1120, 62, i % 2 === 0 ? C.white : C.grayBg, C.line);
+    row.forEach((cell, j) => {
+      addText(slide, `norm-${i}-${j}`, cell, { left: [106, 420, 772][j], top: y + 17, width: [280, 316, 380][j], height: 28 }, {
+        fontSize: 18,
+        bold: j === 1,
+        color: j === 1 ? C.teal : C.secondary,
+        typeface: j < 2 ? EN_FONT : FONT,
+      });
+    });
+  });
+  addText(slide, "bottom", "Normalization 是新增欄位，不是抹掉來源中的原始表述。", {
+    left: 220,
+    top: 574,
+    width: 840,
+    height: 34,
+  }, { fontSize: 23, bold: true, color: C.teal, alignment: "center" });
+  notes(slide, "生醫 entity 常有別名與不同粒度。最安全的做法是 raw 與 normalized 並存，並保留 review note。");
+}
+
+function slide36(p) {
+  const slide = baseSlide(p, 36, "CONFLICTING EVIDENCE", "衝突證據不要平均掉；先找出差異在哪裡", C.amber);
+  const steps = [
+    ["Keep", "保留兩列"],
+    ["Compare", "population / design"],
+    ["Stratify", "outcome / subgroup"],
+    ["Explain", "可能的差異來源"],
+    ["Escalate", "needs expert review"],
+  ];
+  steps.forEach(([head, copy], i) => {
+    const x = 100 + i * 222;
+    if (i > 0) addLine(slide, `conflict-line-${i}`, x - 56, 332, x, 332, C.line, 2);
+    addNode(slide, `conflict-step-${i}`, `${head}\n${copy}`, x, 280, 166, 104, [C.indigo, C.teal, C.amber, C.coral, C.secondary][i], C.white, 17, EN_FONT);
+  });
+  addSurface(slide, "conflict-example", 152, 458, 976, 92, C.amberLight, C.amber);
+  addText(slide, "conflict-example-text", "conflict_note: outcome definition、line of therapy、follow-up 或 subgroup 不同；目前不能合併成單一結論。", {
+    left: 192,
+    top: 490,
+    width: 896,
+    height: 34,
+  }, { fontSize: 21, bold: true, color: C.ink, alignment: "center" });
+  notes(slide, "學生常讓模型把衝突來源平均成一句模糊結論。正確做法是保留差異並升級 review。");
+}
+
+function slide37(p) {
+  const slide = baseSlide(p, 37, "NOT FOUND RULE", "找不到不是空白，也不是要求模型補完", C.coral);
+  const states = [
+    ["not_searched", "尚未執行足夠搜尋", "建立下一個 query task", C.secondary, C.grayBg],
+    ["not_found", "依目前 strategy 未找到來源", "回報範圍、日期與限制", C.amber, C.amberLight],
+    ["not_accessible", "知道來源存在但無法檢查", "不要宣稱來源支持 claim", C.coral, C.coralLight],
+  ];
+  states.forEach(([state, meaning, action, color, fill], i) => {
+    const x = 92 + i * 398;
+    addSurface(slide, `notfound-${i}`, x, 224, 342, 238, fill, color);
+    addText(slide, `notfound-state-${i}`, state, { left: x + 26, top: 252, width: 290, height: 30 }, {
+      fontSize: 20,
+      bold: true,
+      color,
+      typeface: MONO,
+      alignment: "center",
+    });
+    addText(slide, `notfound-meaning-${i}`, meaning, { left: x + 32, top: 326, width: 278, height: 48 }, {
+      fontSize: 20,
+      bold: true,
+      color: C.ink,
+      alignment: "center",
+    });
+    addText(slide, `notfound-action-${i}`, action, { left: x + 32, top: 410, width: 278, height: 36 }, {
+      fontSize: 18,
+      color: C.secondary,
+      alignment: "center",
+    });
+  });
+  addText(slide, "bottom", "空白欄位會被下游誤讀；明確 status 才能讓 workflow 正確停止。", {
+    left: 160,
+    top: 562,
+    width: 960,
+    height: 34,
+  }, { fontSize: 23, bold: true, color: C.coral, alignment: "center" });
+  notes(slide, "Not found rule 是 agent stop condition 的一部分，也是避免 hallucination 的結構化方法。");
+}
+
+function slide38(p) {
+  const slide = baseSlide(p, 38, "SAFETY BOUNDARY", "網頁與 PDF 也是不可信輸入；agent 不能照單全收", C.coral);
+  const risks = [
+    ["Prompt injection", "來源文字要求忽略任務、改規則或外傳資料", "只把來源當 data；系統規則優先", C.coral, C.coralLight],
+    ["Sensitive data", "病歷、未公開結果、帳號或 token 被放進 prompt", "使用去識別資料與最小必要權限", C.amber, C.amberLight],
+    ["Scope creep", "搜尋工具開始寫檔、寄信或啟動外部工作", "每種 action 都要明確 approval gate", C.indigo, C.indigoLight],
+  ];
+  risks.forEach(([head, risk, control, color, fill], i) => {
+    const x = 92 + i * 398;
+    addSurface(slide, `risk-${i}`, x, 208, 342, 300, fill, color);
+    addText(slide, `risk-head-${i}`, head, { left: x + 28, top: 238, width: 286, height: 34 }, {
+      fontSize: 25,
+      bold: true,
+      color,
+      typeface: EN_FONT,
+      alignment: "center",
+    });
+    addText(slide, `risk-copy-${i}`, risk, { left: x + 32, top: 318, width: 278, height: 68 }, {
+      fontSize: 19,
+      color: C.ink,
+      alignment: "center",
+      lineSpacing: 1.12,
+    });
+    addText(slide, `risk-control-${i}`, control, { left: x + 32, top: 430, width: 278, height: 50 }, {
+      fontSize: 18,
+      bold: true,
+      color,
+      alignment: "center",
+    });
+  });
+  addText(slide, "bottom", "Read permission 不等於 execute permission。", {
+    left: 330,
+    top: 572,
+    width: 620,
+    height: 34,
+  }, { fontSize: 24, bold: true, color: C.coral, alignment: "center", typeface: EN_FONT });
+  notes(slide, "補上 desktop agent 處理外部來源時的安全邊界：prompt injection、敏感資料與 scope creep。");
+}
+
+function slide39(p) {
+  const slide = baseSlide(p, 39, "REPRODUCIBILITY BUNDLE", "交付的不只是答案，而是一個能重跑與審查的 bundle", C.teal);
+  const artifacts = [
+    ["01", "task_spec.md", "範圍與驗收標準", C.indigo],
+    ["02", "query_log.demo.md", "搜尋決策與停止規則", C.teal],
+    ["03", "source_inventory.csv", "候選來源與驗證狀態", C.teal],
+    ["04", "evidence_table.demo.csv", "atomic claims 與 evidence_kind", C.amber],
+    ["05", "evidence_review.demo.md", "逐列查證與修正", C.coral],
+    ["06", "research_note.demo.md", "限制、缺口與下一步", C.indigo],
+  ];
+  artifacts.forEach(([num, file, purpose, color], i) => {
+    const y = 172 + i * 66;
+    addNode(slide, `bundle-num-${i}`, num, 96, y, 58, 42, color, C.white, 16, EN_FONT);
+    addText(slide, `bundle-file-${i}`, file, { left: 186, top: y + 10, width: 340, height: 24 }, {
+      fontSize: 18,
+      bold: true,
+      color: C.ink,
+      typeface: MONO,
+    });
+    addText(slide, `bundle-purpose-${i}`, purpose, { left: 548, top: y + 10, width: 320, height: 24 }, {
+      fontSize: 18,
+      color: C.secondary,
+    });
+  });
+  addSurface(slide, "exit-gate", 910, 176, 286, 388, C.tealLight, C.teal);
+  addText(slide, "exit-title", "Exit gate", { left: 942, top: 208, width: 220, height: 32 }, {
+    fontSize: 28,
+    bold: true,
+    color: C.teal,
+    typeface: EN_FONT,
+    alignment: "center",
+  });
+  addBulletList(slide, "exit-items", ["每列可回查來源", "sample_n 有語意", "推測被隔離", "not_found 有範圍", "人工 review 有紀錄"], {
+    left: 962,
+    top: 296,
+    width: 184,
+    height: 190,
+  }, { fontSize: 19, spaceAfter: 10 });
+  notes(slide, "用 bundle 與 exit gate 收束新增內容，讓學生知道完成的定義不是表格看起來漂亮。");
+}
+
+function slide40(p) {
+  const slide = p.slides.add();
+  slide.background.fill = C.dark;
+  addSlideChrome(slide, 40, C.teal, true);
   addText(slide, "title", "Next: build and validate your own table", {
     left: 118,
     top: 130,
     width: 980,
     height: 72,
   }, { fontSize: 42, bold: true, color: C.white, typeface: EN_FONT });
-  addText(slide, "subtitle", "明天會把 PubMed / browser / CSV / validation script 接進 hands-on workflow", {
+  addText(slide, "subtitle", "下一堂會把 PubMed / browser / CSV / validation script 接進 hands-on workflow", {
     left: 122,
     top: 230,
     width: 920,
@@ -785,8 +1430,11 @@ function slide22(p) {
     ["Review", 842, 410, C.coral],
   ];
   nodes.forEach(([label, x, y, color], i) => {
-    if (i > 0) addLine(slide, `next-line-${i}`, x - 68, y + 28, x - 12, y + 28, "#52616D", 1.3);
-    addNode(slide, `next-${label}`, label, x, y, 132, 56, color, "#26313A", 18, EN_FONT);
+    if (i > 0) {
+      const previousX = nodes[i - 1][1];
+      addLine(slide, `next-line-${i}`, previousX + 132, y + 28, x, y + 28, "#8FA0AA", 1.5);
+    }
+    addNode(slide, `next-${label}`, label, x, y, 132, 56, color, C.white, 18, EN_FONT);
   });
   addText(slide, "wrap", "Lesson 04 看完整示範；Lesson 05 開始自己做，並用檢查規則讓表格能被信任。", {
     left: 166,
@@ -794,7 +1442,7 @@ function slide22(p) {
     width: 900,
     height: 50,
   }, { fontSize: 23, color: "#DDE4E8", alignment: "center" });
-  addFooter(slide, 22, true);
+  addFooter(slide, 40, true);
   notes(slide, "收束到下一堂 hands-on lab。線條只用水平線，避免 connector 錯位。");
 }
 
@@ -826,6 +1474,24 @@ async function main() {
     slide20,
     slide21,
     slide22,
+    slide23,
+    slide24,
+    slide25,
+    slide26,
+    slide27,
+    slide28,
+    slide29,
+    slide30,
+    slide31,
+    slide32,
+    slide33,
+    slide34,
+    slide35,
+    slide36,
+    slide37,
+    slide38,
+    slide39,
+    slide40,
   ].forEach((fn) => fn(presentation));
 
   for (const [index, slide] of presentation.slides.items.entries()) {
@@ -849,4 +1515,3 @@ main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });
-

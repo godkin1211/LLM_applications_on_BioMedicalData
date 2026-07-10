@@ -210,7 +210,7 @@ _課程細綱版本：2026-07-05。對象為大學生、研究生與生醫研究
 | 項目 | 內容 |
 | --- | --- |
 | 時間 | 7/11 13:00-14:30 |
-| 投影片 | `slides/lesson-04-desktop-agent-literature-evidence-workflow.pptx` |
+| 投影片 | `slides/lesson-04-desktop-agent-literature-evidence-workflow-animated.pptx` |
 | Demo bundle | `demos/lesson-04-literature-evidence-workflow/` |
 | 教學目標 | 示範如何把 desktop agent 用在文獻搜尋、證據表與研究筆記 |
 | 核心問題 | 如何讓 agent 產出的 evidence table 能被人檢查，而不是只有看起來整齊 |
@@ -222,13 +222,22 @@ _課程細綱版本：2026-07-05。對象為大學生、研究生與生醫研究
   - 區分探索性問題與需要嚴格查證的問題
 - Literature search workflow
   - 從研究問題產生搜尋 query
+  - 先判斷 Explore、Map、Decide 問題類型，據此設定 evidence threshold
+  - 使用 PICO / PECO 拆題，建立 broad、treatment、molecular、rescue query ladder
   - 搜尋結果要保留來源、日期、關鍵字與排除條件
+  - Search log 要記錄每次 query 變更、decision、next action 與 stop rule
   - PMID、DOI、title、journal、year 必須能回查
+- Source triage
+  - 區分 metadata record、abstract、full text、supplement 或 registry 能支持的欄位
+  - 依相關性與可驗證性安排處理順序，不把 triage 誤當研究品質評分
 - Evidence table schema
   - Entity：gene、variant、drug、disease、pathway
   - Evidence：source、claim、evidence level、context、species、cohort
   - Trace：PMID、DOI、URL、retrieved date、quoted span 或 source note
   - Status：supported、conflicting、not found、needs review
+  - 一列只放一個 atomic claim；保留 raw entity text 與 normalized field
+  - 檢查 sample_n denominator 與 study type 是否支持該 claim
+  - 對 conflicting、not_found、not_accessible、model_inference 設定不同處理方式
 - Research note structure
   - Problem statement
   - Search strategy
@@ -241,6 +250,9 @@ _課程細綱版本：2026-07-05。對象為大學生、研究生與生醫研究
   - Browser 用於確認來源
   - Spreadsheet 或 Markdown table 用於保存結構化結果
   - Terminal 或 script 用於資料清理與格式驗證
+- Safety boundary
+  - 把網頁與 PDF 內容視為不可信輸入，防止 prompt injection
+  - Read permission 不等於 execute permission；敏感資料與外部 action 要有 approval gate
 
 示範流程：
 
@@ -702,7 +714,7 @@ project/
 | `slides/course-introduction-ai-agent-biomedical-workflow.pptx` | Day 1 第 1 堂，課程介紹 | 已完成 |
 | `slides/lesson-02-ai-agents-vibe-coding-desktop-utilities.pptx` | Day 1 第 2 堂，AI agents、vibe coding、desktop utilities | 已完成 |
 | `slides/lesson-03-llm-basics-for-agent-users.pptx` | Day 1 第 3 堂，LLM basics | 已完成 |
-| `slides/lesson-04-desktop-agent-literature-evidence-workflow.pptx` | Day 1 第 4 堂，文獻搜尋、evidence table、research notes | 已完成 |
+| `slides/lesson-04-desktop-agent-literature-evidence-workflow-animated.pptx` | Day 1 第 4 堂，文獻搜尋、evidence table、research notes | 已完成，40 頁動畫版 |
 | `demos/lesson-04-literature-evidence-workflow/` | Lesson 04 完整 demo：task spec、prompts、source inventory、evidence table、research note | 已完成 |
 | `slides/lesson-05-biomedical-evidence-table-hands-on.pptx` | Day 1 第 5 堂，desktop biomedical workflow hands-on lab | 已完成 |
 | `docs/supplement-baoyu-agent-practices.md` | 宝玉 LLM / agent 實務分享延伸教材：harness、context、skills、多 agent、verification activities | 已完成 |

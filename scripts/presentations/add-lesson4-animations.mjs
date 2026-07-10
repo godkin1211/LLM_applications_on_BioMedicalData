@@ -11,6 +11,16 @@ const INPUT = path.join(REPO_ROOT, "slides", "lesson-04-desktop-agent-literature
 const OUTPUT = path.join(REPO_ROOT, "slides", "lesson-04-desktop-agent-literature-evidence-workflow-animated.pptx");
 
 const ANIMATION_PLAN = {
+  5: [
+    ["file-0", "file-name-0", "file-desc-0"],
+    ["file-1", "file-name-1", "file-desc-1"],
+    ["file-2", "file-name-2", "file-desc-2"],
+    ["file-3", "file-name-3", "file-desc-3"],
+    ["file-4", "file-name-4", "file-desc-4"],
+    ["file-5", "file-name-5", "file-desc-5"],
+    ["file-6", "file-name-6", "file-desc-6"],
+    ["path"],
+  ],
   4: [
     ["block-0", "block-head-0", "block-copy-0"],
     ["block-1", "block-head-1", "block-copy-1"],
@@ -72,6 +82,78 @@ const ANIMATION_PLAN = {
   21: [
     ["task", "task-text"],
     ["questions"],
+  ],
+  22: [
+    ["chapter", "chapter-number"],
+    ["title", "subtitle"],
+    ["deep-search-0"],
+    ["deep-search-1"],
+    ["deep-search-2"],
+  ],
+  25: [
+    ["ladder-head-0", "ladder-query-bg-0", "ladder-query-0", "ladder-use-0"],
+    ["ladder-line-1", "ladder-head-1", "ladder-query-bg-1", "ladder-query-1", "ladder-use-1"],
+    ["ladder-line-2", "ladder-head-2", "ladder-query-bg-2", "ladder-query-2", "ladder-use-2"],
+    ["ladder-line-3", "ladder-head-3", "ladder-query-bg-3", "ladder-query-3", "ladder-use-3"],
+    ["bottom"],
+  ],
+  26: [
+    ["eligibility-0", "eligibility-head-0", "eligibility-items-0"],
+    ["eligibility-1", "eligibility-head-1", "eligibility-items-1"],
+    ["bottom"],
+  ],
+  29: [
+    ["triage-0", "triage-head-0", "triage-action-0"],
+    ["triage-1", "triage-head-1", "triage-action-1"],
+    ["triage-2", "triage-head-2", "triage-action-2"],
+    ["triage-3", "triage-head-3", "triage-action-3"],
+    ["bottom"],
+  ],
+  30: [
+    ["chapter", "chapter-number"],
+    ["title", "subtitle"],
+    ["deep-row-0"],
+    ["deep-row-1"],
+    ["deep-row-2"],
+  ],
+  31: [
+    ["claim-bad", "claim-bad-text"],
+    ["atomic-label-0", "atomic-scope-0", "atomic-claim-0"],
+    ["atomic-label-1", "atomic-scope-1", "atomic-claim-1"],
+    ["atomic-label-2", "atomic-scope-2", "atomic-claim-2"],
+  ],
+  32: [
+    ["kind-0", "kind-name-0", "kind-meaning-0", "kind-action-0"],
+    ["kind-1", "kind-name-1", "kind-meaning-1", "kind-action-1"],
+    ["kind-2", "kind-name-2", "kind-meaning-2", "kind-action-2"],
+    ["kind-3", "kind-name-3", "kind-meaning-3", "kind-action-3"],
+    ["kind-4", "kind-name-4", "kind-meaning-4", "kind-action-4"],
+  ],
+  33: [
+    ["sample-stage-0"],
+    ["sample-line-1", "sample-stage-1"],
+    ["sample-line-2", "sample-stage-2"],
+    ["sample-line-3", "sample-stage-3"],
+    ["sample-rule-head-0", "sample-rule-copy-0"],
+    ["sample-rule-head-1", "sample-rule-copy-1"],
+    ["sample-rule-head-2", "sample-rule-copy-2"],
+  ],
+  36: [
+    ["conflict-step-0"],
+    ["conflict-line-1", "conflict-step-1"],
+    ["conflict-line-2", "conflict-step-2"],
+    ["conflict-line-3", "conflict-step-3"],
+    ["conflict-line-4", "conflict-step-4"],
+    ["conflict-example", "conflict-example-text"],
+  ],
+  39: [
+    ["bundle-num-0", "bundle-file-0", "bundle-purpose-0"],
+    ["bundle-num-1", "bundle-file-1", "bundle-purpose-1"],
+    ["bundle-num-2", "bundle-file-2", "bundle-purpose-2"],
+    ["bundle-num-3", "bundle-file-3", "bundle-purpose-3"],
+    ["bundle-num-4", "bundle-file-4", "bundle-purpose-4"],
+    ["bundle-num-5", "bundle-file-5", "bundle-purpose-5"],
+    ["exit-gate", "exit-title", "exit-items"],
   ],
 };
 
