@@ -36,6 +36,7 @@ Rules:
 - If sample size is not visible in the source record, write UNKNOWN.
 - Do not summarize beyond what the source supports.
 - Use verification_status = candidate until the PMID or DOI has been opened.
+- Change the value of `verification_status` from "candidate" to "verified" if the PMID or DOI of the record has been verified.
 ```
 
 ## Prompt 3: Evidence table extraction
