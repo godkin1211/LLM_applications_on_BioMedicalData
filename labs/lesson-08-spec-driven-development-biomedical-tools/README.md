@@ -16,14 +16,20 @@ Students should learn to turn a vague biomedical tool request into a `SPEC.md` t
 - `prompts/implement_from_spec_prompt.md`: prompt for asking an agent to implement from a spec.
 - `prompts/spectra_demo_prompt.md`: classroom demo prompt for a Spectra-style workflow.
 
+## Spectra setup
+
+On macOS, install Spectra with `brew install --cask spectra-app`. Windows installers are available from the official Spectra download page. Open a disposable clone, demo branch, or worktree of the course repository in Spectra so generated `openspec/` artifacts do not pollute the teaching branch.
+
 ## Suggested classroom use
 
-1. Pick one example tool.
-2. Ask students to identify missing clarification questions.
-3. Ask students to edit the spec template.
-4. Ask a coding agent to create an implementation plan, but not code yet.
-5. Review whether the implementation plan satisfies the spec.
-6. Optionally run the Spectra demo prompt to show `discuss -> propose -> apply -> ingest`.
+1. Open the repository in Spectra and confirm the `/spectra:*` skills are available.
+2. Pick one example tool.
+3. Ask students to identify missing clarification questions.
+4. Run `/spectra:discuss`, then inspect the converged scope and non-goals.
+5. Run `/spectra:propose` and review proposal, spec, design, and tasks before coding.
+6. Run `/spectra:apply` only after the biomedical review gate passes.
+7. Introduce one requirement change and use `/spectra:ingest` before resuming implementation.
+8. Archive only after artifacts, tests, implementation, and human-review decisions agree.
 
 ## Safety boundaries
 
