@@ -117,3 +117,25 @@ Return:
 - unresolved rows with next search action,
 - a human-review checklist.
 ```
+
+## Prompt 7: Research note synthesis
+
+```text
+Using only the task spec, query log, reviewed evidence table, and evidence-review decisions,
+write `research_note.demo.md` as a handoff document.
+
+Required sections:
+1. Problem statement and scope.
+2. Search strategy, query scope, and stopping rule.
+3. Reviewed evidence summary, separated into literature_evidence and molecular_context.
+4. Unresolved claims: not_found, conflicting, not_accessible, or model_inference.
+5. Human-review decisions and remaining limitations.
+6. Next actions, including the exact next search or review action for each unresolved claim.
+
+Rules:
+- Do not introduce a claim absent from the reviewed evidence table.
+- Do not convert molecular context or model inference into treatment-efficacy evidence.
+- Keep uncertainty explicit; cite the row identifier, PMID, or DOI for every evidence statement.
+- A source record existing is not enough: the source must support the exact claim.
+- Do not make patient-specific, diagnostic, or treatment recommendations.
+```

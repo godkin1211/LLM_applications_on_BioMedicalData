@@ -14,11 +14,11 @@
 | 基因 | EGFR、ALK、TP53 |
 | 藥物 | osimertinib、crizotinib、標準 EGFR-TKI、pemetrexed-plus-platinum 化療 |
 
-**最終要交出的東西**：一份 `evidence_table.demo.csv`，每一列（row）都是「一個窄範圍的 claim（主張）」，並且標明這個 claim 是有文獻支持、只是分子生物學脈絡、還是模型自己的推測。
+**最終要交出的東西**：一份 `evidence_table.demo.csv`，以及在逐列審查後產生的 `research_note.demo.md`。前者保存每一個窄範圍 claim；後者整理可採信證據、未解決問題、限制與下一步。
 
 `─────────────────────────────────────────────────`
 ★ 為什麼要這樣設計
-這個 demo 的教學重點不是「叫 AI 生一張表」，而是示範**生成（generation）跟驗證（verification）必須拆開**。如果一次要求 agent 直接吐出完整證據表，模型很容易把「聽起來合理」和「真的被文獻證實」混在一起——這正是生醫領域使用 LLM 最危險的幻覺（hallucination）來源。所以整個流程被拆成六個獨立的 prompt 步驟，每一步只做一件事，且只有前一步驗證過的結果才能進到下一步。
+這個 demo 的教學重點不是「叫 AI 生一張表」，而是示範**生成（generation）跟驗證（verification）必須拆開**。如果一次要求 agent 直接吐出完整證據表，模型很容易把「聽起來合理」和「真的被文獻證實」混在一起——這正是生醫領域使用 LLM 最危險的幻覺（hallucination）來源。所以整個流程被拆成七個獨立的 prompt 步驟，每一步只做一件事，且只有前一步驗證過的結果才能進到下一步。
 `─────────────────────────────────────────────────`
 
 ## 2. 執行前的前置需求
@@ -26,12 +26,13 @@
 - 需要一個能查詢 PubMed 的工具或連接器（本次執行使用 Claude Code 內建的 PubMed 連接器：`search_articles`、`get_article_metadata` 等）。
 - 不可以憑記憶捏造 PMID、DOI、樣本數（sample size）或研究結論——每一筆資料都必須是**真的查詢、真的打開來源確認過**的結果。
 - 建議用 Python（`csv` 模組）或試算表工具檢查最終 CSV 是否能正確被解析（欄位數量一致、逗號有正確跳脫）。
+- 本目錄只保存三份可重用的輸入文件：`task_spec.md`、`prompts.md` 與本指南。其餘 CSV／Markdown 是每次 demo 在獨立工作目錄中產生的執行輸出，不應直接當成已驗證資料重用。
 
-## 3. 六個步驟與各自的輸出
+## 3. 七個步驟與各自的輸出
 
-`prompts.md` 定義了 6 個依序執行的 prompt。以下逐一說明每一步「做什麼」「輸出什麼檔案」「為什麼需要這個中間產物」。
+`prompts.md` 定義了 7 個依序執行的 prompt。以下逐一說明每一步「做什麼」「輸出什麼檔案」「為什麼需要這個中間產物」。
 
-### 步驟 1：搜尋策略（Prompt 1）→ 輸出 `research_note.demo.md`
+### 步驟 1：搜尋策略（Prompt 1）→ 產生搜尋計畫，不產生最終 research note
 
 **目的**：在還沒有搜尋任何文獻之前，先規劃好要怎麼查。
 
@@ -41,7 +42,7 @@
 - 不可以捏造 PMID、DOI、樣本數或結論。
 - 任何「沒有來源支持的生物學猜測」要先標記為 `model_inference_candidate`，留到後面步驟處理。
 
-**`research_note.demo.md` 的內容結構**（對應 Prompt 1 要求回傳的五項）：
+**這一步的暫存輸出**（對應 Prompt 1 要求回傳的五項）：
 
 1. Concept blocks：疾病／基因／藥物／證據類型的分類清單
 2. PubMed 風格的查詢字串（query strings）——依廣到窄排列，之後會依序變成 `query_log.demo.md` 裡的實際查詢
@@ -49,11 +50,11 @@
 4. 排除條件（exclusion criteria）
 5. 每個候選來源要記錄哪些欄位
 
-這份筆記還有一個小節專門記錄「規劃階段就先標記出來、但還沒有來源支持」的生物學假設（`model_inference_candidate`），並在文件最後追記這些假設後來是被真的找到來源解決了，還是維持 `model_inference`——這樣可以清楚看出一個猜測從「規劃階段的假設」到「最終分類」的完整軌跡。
+先把這些內容保留在 agent 對話或工作目錄中的搜尋計畫；最終的 `research_note.demo.md` 必須等到 Prompt 4 與 Prompt 6 完成 review 後，才由 Prompt 7 產生。
 
-這一步的價值在於：**先把「要查什麼」寫清楚，之後才不會邊查邊漂移範圍**；而且因為是獨立檔案、跟 `query_log.demo.md`（記錄「實際查了什麼、查到什麼」）分開，可以清楚區分「規劃」跟「執行紀錄」兩件事。
+這一步的價值在於：**先把「要查什麼」寫清楚，之後才不會邊查邊漂移範圍**；它是規劃，不是可交接的結論。
 
-### 步驟 2：候選來源清單（Prompt 2）→ 輸出 `source_inventory.csv`
+### 步驟 2：候選來源清單（Prompt 2）→ 在工作目錄輸出 `source_inventory.csv`
 
 **目的**：把步驟 1 規劃好的查詢，實際拿去 PubMed 搜尋，整理成「候選」清單（還沒完全確認能不能用）。
 
@@ -82,7 +83,7 @@
 
 這一步產出的是「候選清單」，**還不是最終證據表**——目的是先把可能有用的來源都收集齊全，再逐一驗證。
 
-### 步驟 3：證據表萃取（Prompt 3）→ 輸出 `evidence_table.demo.csv`
+### 步驟 3：證據表萃取（Prompt 3）→ 在工作目錄輸出 `evidence_table.demo.csv`
 
 **目的**：把步驟 2 驗證過的候選來源，轉換成正式的、可審查的證據表。這是整個 demo 的**主要交付物**。
 
@@ -125,7 +126,7 @@
 2. **不可以把「預後／分子分型」論文偷渡成「治療效果」claim**——如果來源只是描述某個基因突變跟預後（存活期、反應率）的關聯，而不是比較兩種治療的效果，就要分類成 `molecular_context`，不能分類成 `literature_evidence`。
 3. **一列只講一件事**——如果一篇文章同時支持兩個不同的 claim（例如同時支持治療效果和分子脈絡），要拆成兩列，不要合併。
 
-### 步驟 4：逐列審查（Prompt 4）→ 內容併入 `evidence_review.demo.md`
+### 步驟 4：逐列審查（Prompt 4）→ 在工作目錄輸出 `evidence_review.demo.md`
 
 **目的**：針對步驟 3 產出的每一列，逐一回答五個問題：
 
@@ -135,7 +136,7 @@
 4. 這一列該分類成 literature_evidence、molecular_context、model_inference、conflicting，還是 not_found？
 5. 人類審查者在接受這一列之前，還需要再檢查什麼？
 
-### 步驟 5：查詢階梯與停止規則（Prompt 5）→ 輸出 `query_log.demo.md`
+### 步驟 5：查詢階梯與停止規則（Prompt 5）→ 在工作目錄輸出 `query_log.demo.md`
 
 **目的**：完整記錄「為什麼這樣搜尋」「怎麼一步步收斂」「什麼時候該停手」，讓整個搜尋過程可以被重現（reproducible），而不是一個黑盒子。
 
@@ -155,7 +156,7 @@
 
 **停止規則（stop rule）**：當新的查詢已經找不到新的、可驗證的、跟問題相關的來源時，就該停止；或是需要全文存取／專家審查時，也該停止並記錄搜尋範圍與日期，把該 claim 標記為 `not_found`。
 
-### 步驟 6：對抗性審查（Prompt 6）→ 內容併入 `evidence_review.demo.md`
+### 步驟 6：對抗性審查（Prompt 6）→ 更新 `evidence_review.demo.md`
 
 **目的**：扮演一個「懷疑論審查者」，主動嘗試否證（falsify）每一列，而不是被動接受 agent 自己的判斷。
 
@@ -179,25 +180,45 @@
 - 尚未解決的列（unresolved rows）與下一步搜尋動作
 - 給人類審查者的檢查清單
 
+### 步驟 7：研究筆記彙整（Prompt 7）→ 輸出 `research_note.demo.md`
+
+**目的**：把搜尋策略、已審查的 evidence rows、未解決 claim 與人工判斷整理成可交接的研究紀錄。
+
+**輸入**：
+
+- `task_spec.md`
+- `query_log.demo.md`
+- 經 Prompt 4 與 Prompt 6 review 的 `evidence_table.demo.csv`
+- `evidence_review.demo.md`
+
+**規則**：
+
+- 只能摘要已 review 的 row，不可把 agent 記憶或未審查的候選來源寫成證據。
+- `literature_evidence`、`molecular_context`、`model_inference`、`not_found` 與 `conflicting` 必須分開呈現。
+- 每個 evidence statement 都要能回指 row、PMID 或 DOI；不確定性與下一步不可省略。
+
+這一步才是正式產生 research note 的時點；它是 handoff document，不是搜尋開始前的規劃草稿。
+
 ## 4. 完整輸出檔案總覽
 
 | 檔案 | 對應步驟 | 內容性質 |
 | --- | --- | --- |
-| `research_note.demo.md` | 步驟 1 | 搜尋策略規劃（concept blocks、查詢字串、收錄/排除條件、待驗證的生物學假設） |
 | `source_inventory.csv` | 步驟 2 | 候選來源清單（尚未做出最終分類判斷） |
 | `evidence_table.demo.csv` | 步驟 3 | **主要交付物**，每列一個窄範圍 claim，含證據分類 |
 | `query_log.demo.md` | 步驟 5 | 搜尋過程紀錄，讓搜尋策略可重現、可追溯 |
 | `evidence_review.demo.md` | 步驟 4 + 6 | 逐列審查 + 對抗性審查，供人類最終複核 |
+| `research_note.demo.md` | 步驟 7 | 最終 handoff：已審查證據、限制、未解決問題與下一步 |
 
 ## 5. 怎麼確認產出是「正確」的
 
-跑完六個步驟之後，建議依序確認：
+跑完七個步驟之後，建議依序確認：
 
 1. **CSV 能不能正確被解析**：用 Python 的 `csv` 模組讀一次，確認每一列的欄位數量跟表頭一致（避免因為某個 claim 文字裡有逗號、但沒有用雙引號包起來，導致欄位錯位）。
 2. **每一列的 `evidence_kind` 都有對應的理由**：`literature_evidence` 一定要有 PMID/DOI；`model_inference` 一定不能有 PMID/DOI。
 3. **`sample_n` 都能在 `quoted_or_source_note` 裡找到出處**：不能有任何一個數字是「合理但查無來源」的。
 4. **沒有任何一列把分子分型／預後研究講成治療效果**：這是最容易出錯、也是這個 demo 最想示範的地方。
 5. **`needs_human_review` 全部是 `TRUE`**：這張表本質上是「AI 準備好給人看的草稿」，不是「AI 已經確認過的結論」——最終決定權永遠在人類審查者手上。
+6. **research note 沒有新增 claim**：每一段 evidence summary 都能回到已 review 的 evidence row、PMID 或 DOI。
 
 ## 6. 如果要重新跑一次
 

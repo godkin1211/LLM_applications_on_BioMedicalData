@@ -41,3 +41,6 @@ Produce `evidence_table.demo.csv` with these fields:
 - Do not convert a prognostic or molecular-profiling paper into a treatment-efficacy claim.
 - Every row starts as `needs_human_review=TRUE`.
 
+## Final handoff
+
+After row-level review, produce `research_note.demo.md` with the reviewed evidence summary, unresolved claims, human-review decisions, limitations, and next actions. The note must use only reviewed evidence-table rows and must keep `literature_evidence`, `molecular_context`, `model_inference`, and `not_found` separate.
